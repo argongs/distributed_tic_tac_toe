@@ -100,9 +100,11 @@ int idle_state_message_set_name(idle_state_message_struct* message, char* name) 
 
 int idle_state_message_set_character(idle_state_message_struct* message, game_character character) {
     message->character = character;
+    return 0;
 }
 
 int idle_state_message_set_data(idle_state_message_struct* message, void* data) {
     message->data = data;
+    return 0;
 }
 
