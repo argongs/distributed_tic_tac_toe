@@ -22,6 +22,7 @@ int mark_on_grid(grid_struct* grid, game_character character, location location)
 grid_struct* flush_grid(grid_struct* grid);
 //grid_struct* update_grid_status(grid_struct* grid);  // make it static and call it from mark_on_grid()
 grid_status_enum last_move_outcome(grid_struct grid);
+int compare_grid(grid_struct grid1, grid_struct grid2);
 
 char* grid_to_string(grid_struct grid);
 grid_struct parse_string_to_grid(char* grid_string);
