@@ -49,7 +49,7 @@ idle_state_message_struct parse_string_to_idle_state_message(char* message) {
 // Converts Idle State Message to String. Remember to destroy the memory associated with the message post its usage.
 char* idle_state_message_to_string (idle_state_message_struct message) {
 
-    size_t idle_state_message_max_size = (IDLE_STATE_MESSAGE_MAX_LENGTH) * size_of(char);
+    size_t idle_state_message_max_size = (IDLE_STATE_MESSAGE_MAX_LENGTH) * sizeof(char);
     char* idle_state_message = malloc (idle_state_message_max_size);
 
     int bytes_read = snprintf(idle_state_message, idle_state_message_max_size, "%c,%s,%c,%p", message.type, message.name, message.character, message.data);

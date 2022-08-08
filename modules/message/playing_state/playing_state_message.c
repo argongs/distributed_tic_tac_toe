@@ -48,7 +48,7 @@ playing_state_message_struct parse_string_to_playing_state_message (char* messag
 }
 
 char* playing_state_message_to_string (playing_state_message_struct message) {
-    size_t playing_state_message_max_size = (PLAYING_STATE_MESSAGE_MAX_LENGTH) * size_of(char);
+    size_t playing_state_message_max_size = (PLAYING_STATE_MESSAGE_MAX_LENGTH) * sizeof(char);
     char* playing_state_message = malloc (playing_state_message_max_size);
 
     int bytes_read = snprintf(playing_state_message, playing_state_message_max_size, "%c,%s,%d,%p", message.type, message.grid.contents, message.grid.last_location, message.data);
