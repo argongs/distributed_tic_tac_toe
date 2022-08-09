@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../idle_state_message.h"
+#include "../../../modules/message/idle_state/idle_state_message.h"
 #include "../../grid/game_character.h"
 #include <stdbool.h>
 #include <string.h>
