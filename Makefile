@@ -1,11 +1,16 @@
 
-CC = gcc -O
+#VPATH = modules/message/idle_state_message:test/message/idle_state_message
+#vpath %.c ./modules/message/idle_state_message:./test/message/idle_state_message
+#vpath %.h ./modules/idle_state_message
 
-path_to_message_module=.\modules\message
+CC = gcc
+binary_directory = ./bin
+message_module_directory = ./modules/message
 
-message: idle_state_message
+# For message related modules
 
-idle_state_message: $(path_to_message_module)\idle_state_message.c $(path_to_message_module)\idle_state_message.h
-	$(CC) $(path_to_message_module)\idle_state_message.c
+idle_state_message.o: idle_state_message.c idle_state_message.h
+	$(CC) -c -g $< -o $(binary_directory)/$@ 
 
-message_test: $(path_to_message_module)\test\idle_state_message_test.c $(path_to_message_module)\idle_state_message.h
+idle_state_message_test: idle_state_message_test.c idle_state_message.o
+	$(CC) -g $^ -o $@
