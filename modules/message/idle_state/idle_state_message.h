@@ -22,7 +22,7 @@ char* idle_state_message_to_string (idle_state_message_struct message);
 int compare_idle_state_messages (idle_state_message_struct message1, idle_state_message_struct message2);
 
 // Getters
-idle_state_message_get_type_enum idle_state_message_get_type(idle_state_message_struct message);
+idle_state_message_type_enum idle_state_message_get_type(idle_state_message_struct message);
 char* idle_state_message_get_name(idle_state_message_struct message);
 char idle_state_message_get_character(idle_state_message_struct message);
 void* idle_state_message_get_data(idle_state_message_struct message);
