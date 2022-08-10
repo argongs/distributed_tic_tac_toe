@@ -16,11 +16,12 @@ grid_struct* create_grid() {
     return grid;
 }
 
-// Marks a charachter (CROSS or ZERO) on the grid. 
+// Marks a charachter (CROSS or ZERO) on the grid. Returns 1 if the location is invalid.
 int mark_on_grid(grid_struct* grid, game_character character, location location) {
     
-    if (location < GRID_INFINITY) {
+    if (location < GRID_INFINITY && grid->contents[location] != EMPTY) {
         grid->contents[location] = character;
+        set_grid_last_update_location (grid, location);
         update_grid_status(grid);
     }
     else
@@ -33,7 +34,7 @@ int mark_on_grid(grid_struct* grid, game_character character, location location)
 grid_struct* flush_grid(grid_struct* grid) {
 
     for (location i = 0; i < GRID_SIZE; i++)
-        mark_on_grid(grid, EMPTY, i);
+        grid->contents[i] = EMPTY;
 
     set_grid_last_update_location(grid, GRID_INFINITY);
     set_grid_recent_status(grid, BLANK);
@@ -98,6 +99,8 @@ static grid_struct* update_grid_status(grid_struct* grid) {
         (vertical_left_match || vertical_mid_match || vertical_right_match) ||
         (diagonal_left_match || diagonal_right_match);
 
+    unsigned short int entries_made = get_no_of_entries_made_in_grid(grid);
+    
     if (it_is_a_win)
         set_grid_recent_status(grid, WIN);
     else
@@ -123,6 +126,11 @@ int compare_grid(grid_struct grid1, grid_struct grid2) {
                     get_grid_recent_status(grid1) == get_grid_recent_status(grid2)
 
     return contents_match && attributes_match;
+}
+
+// Send the grid to oblivion
+void destroy_grid(grid_struct* grid) {
+    free(grid);
 }
 
 // Translate the grid contents along with the last move location into a String
