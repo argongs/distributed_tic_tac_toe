@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include "../../../modules/message/idle_state/idle_state_message.h"
-#include "../../grid/game_character.h"
 #include <stdbool.h>
 #include <string.h>
+
+#include "modules/grid/game_character.h"
+#include "modules/message/idle_state/idle_state_message.h"
+#include "modules/test/test.h"
 
 bool test_create_invite_message ();
 bool test_create_accept_message ();
@@ -48,7 +50,7 @@ bool test_create_invite_message () {
     idle_state_message_struct expected = {INVITE, name, character, data};
 
     // act
-    idle_state_message_struct actual = idle_state_create_invite_message(name, character, data);
+    idle_state_message_struct actual = create_invite_message(name, character, data);
 
     // assert
     bool test_passed = expected.type == actual.type && 
@@ -56,11 +58,7 @@ bool test_create_invite_message () {
         expected.character == actual.character && 
         expected.data == actual.data; 
 
-    if (test_passed) 
-        printf ("test_create_invite_message() passed\n");
-    else
-        printf ("test_create_invite_message() failed\n");
-
+    print_test_status(test_passed, "create_invite_message()");
     return test_passed;
 }
 
@@ -74,23 +72,19 @@ bool test_create_accept_message () {
     idle_state_message_struct expected = {ACCEPT, name, character, data};
 
     // act
-    idle_state_message_struct actual = idle_state_create_accept_message(name, character, data);
+    idle_state_message_struct actual = create_accept_message(name, character, data);
 
     // assert
     bool test_passed = expected.type == actual.type && expected.name == actual.name && expected.character == actual.character && expected.data == actual.data; 
 
-    if (test_passed) 
-        printf ("test_create_accept_message() passed\n");
-    else
-        printf ("test_create_accept_message() failed\n");
-
+    print_test_status(test_passed, "create_accept_message()");
     return test_passed;
 }
 
 // Test parse_string_to_idle_state_message() to see if it can parse(de-serialize) given message into the Idle state message data structure 
 bool test_parse_string_to_idle_state_message() {
     // assume
-    char* string_to_parse = "INVITE,New,X,";
+    char* string_to_parse = "I,New,X";
 
     char* name = "New";
     game_character character = CROSS;
@@ -99,16 +93,12 @@ bool test_parse_string_to_idle_state_message() {
     idle_state_message_struct expected = {INVITE, name, character, data};
 
     // act
-    idle_state_message_struct actual = parse_string_to_idle_state_message(string_to_parse);
+    idle_state_message_struct* actual = parse_string_to_idle_state_message(string_to_parse);
 
     // assert
-    bool test_passed = expected.type == actual.type && expected.name == actual.name && expected.character == actual.character && expected.data == actual.data; 
+    bool test_passed = expected.type == actual->type && strcmp(expected.name, actual->name) == 0 && expected.character == actual->character && expected.data == actual->data; 
 
-    if (test_passed) 
-        printf ("test_parse_string_to_idle_state_message() passed\n");
-    else
-        printf ("test_parse_string_to_idle_state_message() failed\n");
-
+    print_test_status(test_passed, "parse_string_to_idle_state_message()");
     return test_passed;
 }
 
@@ -120,7 +110,7 @@ bool test_idle_state_message_to_string () {
     void* data = NULL;
     idle_state_message_struct invite_message = {INVITE, name, character, data};
 
-    char* expected = "INVITE,New,X,";
+    char* expected = "I,New,X";
 
     // act
     char* actual = idle_state_message_to_string (invite_message);
@@ -128,11 +118,7 @@ bool test_idle_state_message_to_string () {
     // assert
     bool test_passed = strcmp(expected, actual) == 0;
 
-    if (test_passed) 
-        printf ("test_idle_state_message_to_string() passed\n");
-    else
-        printf ("test_idle_state_message_to_string() failed\n");
-
+    print_test_status(test_passed, "idle_state_message_to_string()");
     return test_passed;
 }
 
@@ -154,11 +140,7 @@ bool test_compare_if_equal () {
     // assert
     bool test_passed = actual == expected; 
 
-    if (test_passed) 
-        printf ("test_idle_state_message_to_string() passed\n");
-    else
-        printf ("test_idle_state_message_to_string() failed\n");   
-
+    print_test_status(test_passed, "compare_idle_state_messages() (Equal Case)");
     return test_passed;
 }
 
@@ -179,11 +161,7 @@ bool test_compare_if_unequal () {
     // assert
     bool test_passed = actual != expected; 
 
-    if (test_passed) 
-        printf ("test_idle_state_message_to_string() passed\n");
-    else
-        printf ("test_idle_state_message_to_string() failed\n");
-
+    print_test_status(test_passed, "compare_idle_state_messages() (Unequal Case)");
     return test_passed;
 }
 
