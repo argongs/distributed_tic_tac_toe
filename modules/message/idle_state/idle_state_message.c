@@ -1,12 +1,35 @@
 // Define the operations related to Idle state based messages : INVITE & ACCEPT
 
-#include "idle_state_message.h"
-#include "../grid/game_character.h"
-#include "string.h"
-#include "stdbool.h"
+#include <string.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-// Creates Idle State Message using the given values. This is meant to be used only by the functions of this file and no one else. Note that if the type of the 
-static idle_state_message_struct create_idle_state_message (idle_state_message type, char* name, game_character character, void* data) {
+#include "./modules/grid/game_character.h"
+#include "idle_state_message.h"
+
+// Static Methods
+
+static int idle_state_message_set_type(idle_state_message_struct* message, idle_state_message_type_enum type) {
+    message->type = type;
+    return 0;
+}
+
+static idle_state_message_struct* create_blank_idle_state_message() {
+    idle_state_message_struct* idle_state_message = (idle_state_message_struct*) malloc (sizeof(idle_state_message_struct));
+    idle_state_message->name = malloc (NAME_FIELD_MAX_LENGTH * sizeof(char));
+    idle_state_message->data = NULL;
+
+    return idle_state_message;
+}
+
+/* 
+    Creates Idle State Message using the given values. 
+    This is meant to be used only by the functions of this file and no one else. 
+    Note that if the type of the message is incorrect, 
+    then it will create an INVITE messae by default.
+*/
+static idle_state_message_struct create_idle_state_message (idle_state_message_type_enum type, char* name, game_character character, void* data) {
     
     idle_state_message_struct idle_state_message = {
         INVITE,
@@ -40,9 +63,10 @@ idle_state_message_struct create_accept_message (char* name, game_character char
 }
 
 // Creates Idle State Message by parsing the given message.
-idle_state_message_struct parse_string_to_idle_state_message(char* message) {
-    idle_state_message_struct idle_state_message;
-    int no_of_variables_scanned = sscanf(message, "%c,%s,%c,%p", &idle_state_message.type, &idle_state_message.name, &idle_state_message.character, &idle_state_message.data);
+idle_state_message_struct* parse_string_to_idle_state_message(char* message) {
+    
+    idle_state_message_struct* idle_state_message = create_blank_idle_state_message();
+    int no_of_variables_scanned = sscanf(message, "%c,%[^,],%c", (char*) &(idle_state_message->type), idle_state_message->name, (char*) &(idle_state_message->character));
     return idle_state_message;
 }
 
@@ -52,7 +76,7 @@ char* idle_state_message_to_string (idle_state_message_struct message) {
     size_t idle_state_message_max_size = (IDLE_STATE_MESSAGE_MAX_LENGTH) * sizeof(char);
     char* idle_state_message = malloc (idle_state_message_max_size);
 
-    int bytes_read = snprintf(idle_state_message, idle_state_message_max_size, "%c,%s,%c,%p", message.type, message.name, message.character, message.data);
+    int bytes_read = snprintf(idle_state_message, idle_state_message_max_size, "%c,%s,%c", message.type, message.name, message.character);
 
     return idle_state_message;
 }
@@ -69,7 +93,7 @@ int compare_idle_state_messages (idle_state_message_struct message1, idle_state_
 
 
 // Getters
-idle_state_message_get_type_enum idle_state_message_get_type(idle_state_message_struct message) {
+idle_state_message_type_enum idle_state_message_get_type(idle_state_message_struct message) {
     return message.type;
 }
 
@@ -86,12 +110,7 @@ const void* idle_state_message_get_data(idle_state_message_struct message) {
     return message.data;
 }
 
-// Setters
-static int idle_state_message_set_type(idle_state_message_struct* message, idle_state_message_type_enum type) {
-    message->type = type;
-    return 0;
-} 
-
+// Setters 
 
 int idle_state_message_set_name(idle_state_message_struct* message, char* name) {
     message->name = name;
