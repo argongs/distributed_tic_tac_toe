@@ -1,46 +1,12 @@
 // Define functions associated with the grid data structure
-#include "grid.h"
-#include "game_character.h"
-#include <string.h>
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 
-// Creates a new grid ready for usage. Returns a pointer to that grid for easier access to it.
-grid_struct* create_grid() {
-    grid_struct* grid = malloc (size_of(gid_struct));
-
-    if (grid == NULL)
-        return NULL;
-
-    flush_grid(grid);
-    return grid;
-}
-
-// Marks a charachter (CROSS or ZERO) on the grid. Returns 1 if the location is invalid.
-int mark_on_grid(grid_struct* grid, game_character character, location location) {
-    
-    if (location < GRID_INFINITY && grid->contents[location] != EMPTY) {
-        grid->contents[location] = character;
-        set_grid_last_update_location (grid, location);
-        update_grid_status(grid);
-    }
-    else
-        return 1;
-
-    return 0;
-}
-
-// Clean the grid by reversing it back to the blank state.
-grid_struct* flush_grid(grid_struct* grid) {
-
-    for (location i = 0; i < GRID_SIZE; i++)
-        grid->contents[i] = EMPTY;
-
-    set_grid_last_update_location(grid, GRID_INFINITY);
-    set_grid_recent_status(grid, BLANK);
-
-    return grid;
-}
+#include "game_character.h"
+#include "grid.h"
 
 // Analyse the grid to understand its current status
 static grid_struct* update_grid_status(grid_struct* grid) {
@@ -99,15 +65,53 @@ static grid_struct* update_grid_status(grid_struct* grid) {
         (vertical_left_match || vertical_mid_match || vertical_right_match) ||
         (diagonal_left_match || diagonal_right_match);
 
-    unsigned short int entries_made = get_no_of_entries_made_in_grid(grid);
+    unsigned short int entries_made = get_no_of_entries_made_in_grid(*grid);
     
     if (it_is_a_win)
-        set_grid_recent_status(grid, WIN);
+        set_grid_recent_status(grid, GAME_WIN);
     else
         if (entries_made < GRID_SIZE)
-            set_grid_recent_status(grid, INCOMPLETE);
+            set_grid_recent_status(grid, ONGOING);
         else
-            set_grid_recent_status(grid, DRAW);
+            set_grid_recent_status(grid, GAME_DRAW);
+
+    return grid;
+}
+
+// Creates a new grid ready for usage. Returns a pointer to that grid for easier access to it.
+grid_struct* create_grid() {
+    grid_struct* grid = malloc (sizeof(grid_struct));
+    grid->contents = malloc (GRID_SIZE * sizeof(char));
+
+    if (grid == NULL)
+        return NULL;
+
+    flush_grid(grid);
+    return grid;
+}
+
+// Marks a charachter (CROSS or ZERO) on the grid. Returns 1 if the location is invalid.
+int mark_on_grid(grid_struct* grid, game_character character, location location) {
+    
+    if (location < GRID_INFINITY && grid->contents[location] != EMPTY) {
+        grid->contents[location] = character;
+        set_grid_last_update_location (grid, location);
+        update_grid_status(grid);
+    }
+    else
+        return 1;
+
+    return 0;
+}
+
+// Clean the grid by reversing it back to the blank state.
+grid_struct* flush_grid(grid_struct* grid) {
+
+    for (location i = 0; i < GRID_SIZE; i++)
+        grid->contents[i] = EMPTY;
+
+    set_grid_last_update_location(grid, GRID_INFINITY);
+    set_grid_recent_status(grid, BLANK);
 
     return grid;
 }
@@ -115,15 +119,20 @@ static grid_struct* update_grid_status(grid_struct* grid) {
 // grid_status_enum last_move_outcome(grid_struct grid);
 
 // Compares 2 grid and tells whether they are same. Returns 1 if both match otherwise return 0.
-int compare_grid(grid_struct grid1, grid_struct grid2) {
+int compare_grid(grid_struct* grid1, grid_struct* grid2) {
 
-    bool contents_match = strcmp(grid1.contents, grid2.contents) == 0;
+    bool same_memory_location = grid1 == grid2;
+
+    if (same_memory_location)
+        return 1;
+
+    bool contents_match = strcmp(grid1->contents, grid2->contents) == 0;
     bool attributes_match = false;
 
     if (contents_match)
-        attributes_match = get_grid_last_update_location(grid1) == get_grid_last_update_location(grid2) &&
-                    get_no_of_entries_made_in_grid(grid1) == get_no_of_entries_made_in_grid(grid2) &&
-                    get_grid_recent_status(grid1) == get_grid_recent_status(grid2)
+        attributes_match = get_grid_last_update_location(*grid1) == get_grid_last_update_location(*grid2) &&
+                    get_no_of_entries_made_in_grid(*grid1) == get_no_of_entries_made_in_grid(*grid2) &&
+                    get_grid_recent_status(*grid1) == get_grid_recent_status(*grid2);
 
     return contents_match && attributes_match;
 }
@@ -146,13 +155,8 @@ grid_struct* parse_string_to_grid(char* grid_string) {
     if (grid == NULL)
         return NULL;
 
-    char[GRID_SIZE] grid_contents;
-    location last_move;
+    sscanf(grid_string, "%[^,],%hu", grid->contents, &(grid->last_location));
     
-    sscanf(grid_string, "%9s,%u", grid_contents, &last_move);
-    
-    strcpy(grid_string);
-    set_grid_last_update_location(grid, last_move);
     update_grid_status(grid);
 
     return grid;
