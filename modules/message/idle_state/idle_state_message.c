@@ -29,21 +29,21 @@ static idle_state_message_struct* create_blank_idle_state_message() {
     Note that if the type of the message is incorrect, 
     then it will create an INVITE messae by default.
 */
-static idle_state_message_struct create_idle_state_message (idle_state_message_type_enum type, char* name, game_character character, void* data) {
+static idle_state_message_struct* create_idle_state_message (idle_state_message_type_enum type, char* name, game_character character, void* data) {
     
-    idle_state_message_struct idle_state_message = {
-        INVITE,
-        name,
-        character,
-        data
-    };
+    idle_state_message_struct* idle_state_message = (idle_state_message_struct*) malloc (sizeof(idle_state_message_struct)); 
+    
+    idle_state_message_set_type(idle_state_message, INVITE);
+    idle_state_message_set_name(idle_state_message, name);
+    idle_state_message_set_character(idle_state_message, character);
+    idle_state_message_set_data(idle_state_message, data);
     
     switch (type) {
         case INVITE: 
             break;
 
         case ACCEPT:
-            idle_state_message_set_type(&idle_state_message, ACCEPT); 
+            idle_state_message_set_type(idle_state_message, ACCEPT); 
             break;
         
         default:;
@@ -53,13 +53,20 @@ static idle_state_message_struct create_idle_state_message (idle_state_message_t
 }
 
 // Creates INVITE Message using the given values.
-idle_state_message_struct create_invite_message (char* name, game_character character, void* data) {
+idle_state_message_struct* create_invite_message (char* name, game_character character, void* data) {
     return create_idle_state_message(INVITE, name, character, data);
 }
 
 // Creates ACCEPT Message using the given values.
-idle_state_message_struct create_accept_message (char* name, game_character character, void* data) {
+idle_state_message_struct* create_accept_message (char* name, game_character character, void* data) {
     return create_idle_state_message(ACCEPT, name, character, data);
+}
+
+// Destroy the memory allocated for the idle state message
+void destroy_idle_state_message(idle_state_message_struct* message) {
+    free(message->name);
+    free(message->data);
+    free(message);
 }
 
 // Creates Idle State Message by parsing the given message.
