@@ -105,7 +105,7 @@ idle_state_message_type_enum idle_state_message_get_type(idle_state_message_stru
 }
 
 
-const char* idle_state_message_get_name(idle_state_message_struct message) {
+char* idle_state_message_get_name(idle_state_message_struct message) {
     return message.name;
 }
 
