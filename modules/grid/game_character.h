@@ -3,5 +3,5 @@
 typedef enum {
     CROSS = 'X',
     ZERO = '0',
-    EMPTY
+    EMPTY = '.'
 }game_character;
