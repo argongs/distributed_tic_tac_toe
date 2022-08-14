@@ -3,11 +3,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
+#include "modules/grid/game_character.h"
+#include "modules/grid/grid.h"
+#include "modules/message/idle_state/idle_state_message.h"
+#include "modules/message/playing_state/playing_state_message.h"
+#include "modules/network/network.h"
 #include "player.h"
-#include "../message/idle_state_message/idle_state_message.h"
-#include "../network/network.h"
-#include "../grid/game_charachter.h"
+
+
+// Create an INVITE for a given player
+static char* create_invite_message_for_player (player_struct player) {
+    
+    idle_state_message_struct* invite_message_data = create_invite_message (
+        get_player_name(player), 
+        get_player_character(player), 
+        NULL
+    );
+    
+    return idle_state_message_to_string(*invite_message_data);
+
+}
+
+// Create an ACCEPT message for a given player
+static char* create_accept_message_for_player (player_struct player) {
+    
+    idle_state_message_struct* accept_message_data = create_accept_message (
+        get_player_name(player), 
+        get_player_character(player), 
+        NULL
+    );
+    
+    return idle_state_message_to_string(*accept_message_data);
+}
+
+// Generate a random port number in between 1025 and 3025
+static int generate_random_port () {
+    return START_PORT + random() % MAX_NODE_COUNT;
+}
 
 // Create a new player using the name and character of preference
 player_struct* create_player(char* name, game_character charachter) {
@@ -24,34 +59,34 @@ player_struct* create_player(char* name, game_character charachter) {
         player->socket_fd = socket_fd;
         set_player_type(player, SELF);
 
-        while (perform_binding(socket_fd, LOCALHOST, source_port) != 0);
+        while (perform_binding(socket_fd, LOCALHOST, port) != 0);
     }
 
     return player;
 }
 
 // Create a new opponent using the given details
-player_struct* create_opponent(int socket_fd, sockaddr_in opponent_socket_address, char* request_message) {
+player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket_address, char* request_message) {
     player_struct* opponent = malloc (sizeof(player_struct));
 
     if (opponent != NULL) {
         opponent->ipv4_addr = malloc (INET_ADDRSTRLEN * sizeof(char));
-        opponent->port = sender_socket_addr.sin_port;
+        opponent->port = opponent_socket_address.sin_port;
         opponent->socket_fd = socket_fd;
 
-        inet_ntop(AF_INET, &(sender_socket_addr.sin_addr), opponent_ipv4_addr, INET_ADDRSTRLEN);
+        inet_ntop(AF_INET, &(opponent_socket_address.sin_addr), opponent->ipv4_addr, INET_ADDRSTRLEN);
 
-        idle_state_message_struct idle_state_message = parse_string_to_idle_state_message(message_buffer);
+        idle_state_message_struct* idle_state_message = parse_string_to_idle_state_message(request_message);
         
-        opponent->name = idle_state_message_get_name(idle_state_message);
-        opponent->charachter = idle_state_message_get_character(idle_state_message);
+        opponent->name = idle_state_message_get_name(*idle_state_message);
+        opponent->charachter = idle_state_message_get_character(*idle_state_message);
 
-        switch(idle_state_message_get_type(idle_state_message)) {
+        switch(idle_state_message_get_type(*idle_state_message)) {
             case INVITE:
-                set_player_type(OPPONENT_WITH_OWN_INVITE);
+                set_player_type(opponent, OPPONENT_WITH_OWN_INVITE);
                 break;
             case ACCEPT:
-                set_player_type(OPPONENT_WITH_PLAYER_INVITE);
+                set_player_type(opponent, OPPONENT_WITH_PLAYER_INVITE);
                 break;
             default:;
         }
@@ -65,16 +100,12 @@ void kill_player(player_struct* player) {
     free(player);
 }
 
-// Generate a random port number in between 1025 and 3025
-static int generate_random_port () {
-    return START_PORT + random() % MAX_NODE_COUNT;
-}
-
 // Broadcasts a player's presence into the network in expectation of an opponent who will ACCEPT the request for a game.
 idle_state_message_struct* broadcast_player(player_struct* player) {
     // Message to send
     char* invite_message = create_invite_message_for_player(*player);
     unsigned int message_length = strlen(invite_message);
+    int socket_fd = get_player_socket_file_descriptor(*player);
 
     // Destination data
     struct sockaddr_in dest_socket_addr;
@@ -114,43 +145,18 @@ player_struct* look_for_opponents(player_struct player) {
 int accept_an_opponent(player_struct player, player_struct opponent) {
     
     // Prepare the ACCEPT message
-    idle_state_message_struct accept_message = create_accept_message_for_player(player);
-    int socket_fd = get_player_socket_descriptor(player);
+    char* accept_message = create_accept_message_for_player(player);
+    int message_length = strlen(accept_message);
+    int socket_fd = get_player_socket_file_descriptor(player);
 
     // Prepare the destination details
     struct sockaddr_in dest_socket_addr;
 	char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
     int dest_port = get_player_port(opponent);
-    parse_address (dest_ipv4_addr, destination_port, &dest_socket_addr);
+    parse_address (dest_ipv4_addr, dest_port, &dest_socket_addr);
 
     // Send the ACCEPT message    
-    sendto (socket_fd, invite_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
-}
-
-// Create an INVITE for a given player
-static char* create_invite_message_for_player (player_struct player) {
-    
-    idle_state_message_struct invite_message_data = create_invite_message (
-        get_player_name(player), 
-        get_player_character(player), 
-        NULL
-    );
-    
-    return idle_state_message_to_string(invite_message_data);
-
-}
-
-// Create an ACCEPT message for a given player
-static char* create_accept_message_for_player (player_struct player) {
-    
-    idle_state_message_struct accept_message_data = create_accept_message (
-        get_player_name(player), 
-        get_player_character(player), 
-        NULL
-    );
-    
-    return idle_state_message_to_string(accept_message_data);
-
+    sendto (socket_fd, accept_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
 }
 
 // Getters
@@ -158,8 +164,8 @@ char* get_player_name(player_struct player) {
     return player.name;
 }
 
-char* get_player_character(player_struct player) {
-    return player.charachter
+game_character get_player_character(player_struct player) {
+    return player.charachter;
 }
 
 char* get_player_ipv4_addr(player_struct player) {
