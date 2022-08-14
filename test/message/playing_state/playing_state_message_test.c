@@ -25,7 +25,7 @@ bool test_compare_if_unequal();
 int main()
 {
 
-    const int total_test_cases = 6;
+    const int total_test_cases = 7;
 
     int test_cases_passed = test_create_grid_message() +
                             test_create_win_message() +
