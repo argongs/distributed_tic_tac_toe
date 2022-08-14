@@ -1,11 +1,14 @@
-
-VPATH = ./modules/message/idle_state:./modules/message/playing_state:./modules/grid:./test/message/idle_state:./test/message/playing_state:./bin:./modules/test
-
 SHELL = /bin/sh
 CC = gcc -I .
 
 # Directories
 binary_directory = bin
+
+vpath % modules/message/idle_state:modules/message/playing_state:modules/grid:modules/network:modules/player
+vpath % test/message/idle_state:test/message/playing_state
+vpath %.o bin
+
+# vpath %.h modules
 
 
 # For message related modules
@@ -16,6 +19,12 @@ playing_state_message.o : playing_state_message.c playing_state_message.h game_c
 	$(CC) -c -g $< -o $(binary_directory)/$@
 
 grid.o : grid.c grid.h game_character.h
+	$(CC) -c -g $< -o $(binary_directory)/$@
+
+network.o : network.c network.h
+	$(CC) -c -g $< -o $(binary_directory)/$@
+
+player.o : player.c idle_state_message.o playing_state_message.o grid.o network.o 
 	$(CC) -c -g $< -o $(binary_directory)/$@
 
 # For testing
