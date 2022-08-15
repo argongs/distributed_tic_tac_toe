@@ -4,11 +4,9 @@ CC = gcc -I .
 # Directories
 binary_directory = bin
 
-vpath % modules/message/idle_state:modules/message/playing_state:modules/grid:modules/network:modules/player
-vpath % test/message/idle_state:test/message/playing_state
+vpath % modules/message/idle_state:modules/message/playing_state:modules/grid:modules/network:modules/player:modules/test
+vpath % test/message/idle_state:test/message/playing_state:test/grid
 vpath %.o bin
-
-# vpath %.h modules
 
 
 # For message related modules
@@ -29,9 +27,10 @@ player.o : player.c idle_state_message.o playing_state_message.o grid.o network.
 
 # For testing
 .PHONY = test
-test: test.o idle_state_message_test playing_state_message_test
+test: test.o idle_state_message_test playing_state_message_test grid_test
 	$(binary_directory)/idle_state_message_test
 	$(binary_directory)/playing_state_message_test
+	$(binary_directory)/grid_test
 	
 test.o : test.c test.h
 	$(CC) -c -g $< -o $(binary_directory)/$@
@@ -40,4 +39,7 @@ idle_state_message_test : idle_state_message_test.c idle_state_message.o test.o
 	$(CC) -g $^ -o $(binary_directory)/$@
 
 playing_state_message_test : playing_state_message_test.c playing_state_message.o test.o grid.o
+	$(CC) -g $^ -o $(binary_directory)/$@
+
+grid_test : grid_test.c grid.o test.o
 	$(CC) -g $^ -o $(binary_directory)/$@
