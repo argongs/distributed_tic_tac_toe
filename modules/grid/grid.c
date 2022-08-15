@@ -14,52 +14,52 @@ static grid_struct* update_grid_status(grid_struct* grid) {
     unsigned short int temp = 0;
 
     // Horizontal Bottom
-    bool horizontal_bottom_match = false;
+    bool horizontal_bottom_match = true;
     temp = grid->contents[HORIZONTAL_BOTTOM_MIN];
     for (location horizontal_bottom_index = HORIZONTAL_BOTTOM_MIN + 1; horizontal_bottom_index <= HORIZONTAL_BOTTOM_MAX; horizontal_bottom_index++) 
-        horizontal_bottom_match = (temp == grid->contents[horizontal_bottom_index]);
+        horizontal_bottom_match = horizontal_bottom_match && (temp != EMPTY) && (temp == grid->contents[horizontal_bottom_index]);
 
     // Horizontal Middle
-    bool horizontal_mid_match = false;
+    bool horizontal_mid_match = true;
     temp = grid->contents[HORIZONTAL_MID_MIN];
     for (location horizontal_mid_index = HORIZONTAL_MID_MIN + 1; horizontal_mid_index <= HORIZONTAL_MID_MAX; horizontal_mid_index++) 
-        horizontal_mid_match = (temp == grid->contents[horizontal_mid_index]);
+        horizontal_mid_match = horizontal_mid_match && (temp != EMPTY) && (temp == grid->contents[horizontal_mid_index]);
 
     // Horizontal Top
-    bool horizontal_top_match = false;
+    bool horizontal_top_match = true;
     temp = grid->contents[HORIZONTAL_TOP_MIN];
     for (location horizontal_top_index = HORIZONTAL_TOP_MIN + 1; horizontal_top_index <= HORIZONTAL_TOP_MAX; horizontal_top_index++) 
-        horizontal_top_match = (temp == grid->contents[horizontal_top_index]);
+        horizontal_top_match = horizontal_top_match && (temp != EMPTY) && (temp == grid->contents[horizontal_top_index]);
 
     // Vertical Left
-    bool vertical_left_match = false;
+    bool vertical_left_match = true;
     temp = grid->contents[VERTICAL_LEFT_MIN];
     for (location vertical_left_index = VERTICAL_LEFT_MIN + 3; vertical_left_index <= VERTICAL_LEFT_MAX; vertical_left_index += 3) 
-        vertical_left_match = (temp == grid->contents[vertical_left_index]);
+        vertical_left_match = vertical_left_match && (temp != EMPTY) && (temp == grid->contents[vertical_left_index]);
 
     // Vertical Middle
-    bool vertical_mid_match = false;
+    bool vertical_mid_match = true;
     temp = grid->contents[VERTICAL_MID_MIN];
     for (location vertical_mid_index = VERTICAL_MID_MIN + 3; vertical_mid_index <= VERTICAL_MID_MAX; vertical_mid_index += 3) 
-        vertical_mid_match = (temp == grid->contents[vertical_mid_index]);
+        vertical_mid_match = vertical_mid_match && (temp != EMPTY) && (temp == grid->contents[vertical_mid_index]);
 
     // Vertical Right
-    bool vertical_right_match = false;
+    bool vertical_right_match = true;
     temp = grid->contents[VERTICAL_RIGHT_MIN];
     for (location vertical_right_index = VERTICAL_RIGHT_MIN + 3; vertical_right_index <= VERTICAL_RIGHT_MAX; vertical_right_index += 3) 
-        vertical_right_match = (temp == grid->contents[vertical_right_index]);
+        vertical_right_match = vertical_right_match && (temp != EMPTY) && (temp == grid->contents[vertical_right_index]);
 
     // Diagonal Right
-    bool diagonal_right_match = false;
+    bool diagonal_right_match = true;
     temp = grid->contents[DIAGONAL_RIGHT_MIN];
     for (location diagonal_right_index = DIAGONAL_RIGHT_MIN + 4; diagonal_right_index <= DIAGONAL_RIGHT_MAX; diagonal_right_index += 4) 
-        diagonal_right_match = (temp == grid->contents[diagonal_right_index]);
+        diagonal_right_match = diagonal_right_match && (temp != EMPTY) && (temp == grid->contents[diagonal_right_index]);
 
     // Diagonal Left
-    bool diagonal_left_match = false;
+    bool diagonal_left_match = true;
     temp = grid->contents[DIAGONAL_LEFT_MIN];
     for (location diagonal_left_index = DIAGONAL_LEFT_MIN + 2; diagonal_left_index <= DIAGONAL_LEFT_MAX; diagonal_left_index += 2) 
-        diagonal_left_match = (temp == grid->contents[diagonal_left_index]);
+        diagonal_left_match = diagonal_left_match && (temp != EMPTY) && (temp == grid->contents[diagonal_left_index]);
 
     bool it_is_a_win = (horizontal_bottom_match || horizontal_mid_match || horizontal_top_match) ||
         (vertical_left_match || vertical_mid_match || vertical_right_match) ||
@@ -93,7 +93,7 @@ grid_struct* create_grid() {
 // Marks a charachter (CROSS or ZERO) on the grid. Returns 1 if the location is invalid.
 int mark_on_grid(grid_struct* grid, game_character character, location location) {
     
-    if (location < GRID_INFINITY && grid->contents[location] != EMPTY) {
+    if (location < GRID_INFINITY && grid->contents[location] == EMPTY) {
         grid->contents[location] = character;
         set_grid_last_update_location (grid, location);
         update_grid_status(grid);
