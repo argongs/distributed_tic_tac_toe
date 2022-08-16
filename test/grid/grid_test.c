@@ -12,7 +12,8 @@ int test_mark_on_grid_with_blank_to_ongoing();
 int test_mark_on_grid_with_ongoing_to_win();
 int test_mark_on_grid_with_ongoing_to_draw();
 int test_flush_grid();
-int test_compare_grid();
+int test_compare_grid_if_equal();
+int test_compare_grid_if_unequal();
 int test_destroy_grid();
 int test_grid_to_string();
 int test_parse_string_to_grid();
@@ -31,9 +32,10 @@ int main()
     int test_cases_passed = test_create_grid() +
         test_mark_on_grid_with_blank_to_ongoing() +
         test_mark_on_grid_with_ongoing_to_win() +
-        test_mark_on_grid_with_ongoing_to_draw();
-        // test_flush_grid() +
-        // test_compare_grid() +
+        test_mark_on_grid_with_ongoing_to_draw() +
+        test_flush_grid() +
+        test_compare_grid_if_equal() +
+        test_compare_grid_if_unequal();
         // test_destroy_grid() +
         // test_grid_to_string() +
         // test_parse_string_to_grid();
@@ -162,43 +164,109 @@ int test_mark_on_grid_with_ongoing_to_draw() {
     return test_passed;
 }
 
-// int test_flush_grid() {
-//     // assume
+// Test flush_grid() to see if it can reverse a grid back to its blank state
+int test_flush_grid() {
+    // assume
+    /**
+     * X 0 .
+     * 0 X X
+     * 0 X 0
+     */
+    grid_struct input_grid = {
+        malloc (GRID_SIZE*sizeof(char)),
+        7,
+        ONGOING
+    };
+    strcpy(input_grid.contents, "0X00XXX0.");
 
-//     // act
+    grid_struct expected = {
+        ".........",
+        GRID_INFINITY,
+        BLANK
+    };
 
-//     // assert
-// }
+    // act
+    grid_struct* actual = flush_grid(&input_grid);
 
-// int test_compare_grid() {
-//     // assume
+    // assert
+    bool test_passed = compare_grid(actual, &expected);
+    print_test_status(test_passed, "flush_grid()");
+    return test_passed;
+}
 
-//     // act
+// Test compare_grid() to see if it can identify 2 same grids
+int test_compare_grid_if_equal() {
+    // assume
+    grid_struct grid1 = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+    
+    grid_struct grid2 = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+    
+    bool expected = true;
 
-//     // assert
-// }
+    // act
+    bool actual = compare_grid(&grid1, &grid2);
+    
+    // assert
+    bool test_passed = expected == actual;
+    print_test_status(test_passed, "compare_grid() (Equal Case)");
+    return test_passed;
+}
 
-// int test_destroy_grid() {
-//     // assume
+// Test compare_grid() to see if it can identify 2 different grids
+int test_compare_grid_if_unequal() {
+    // assume
+    grid_struct grid1 = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+    
+    grid_struct grid2 = {
+        "0X0X0X...",
+        4,
+        ONGOING
+    };
+    
+    bool expected = false;
 
-//     // act
+    // act
+    bool actual = compare_grid(&grid1, &grid2);
+    
+    // assert
+    bool test_passed = expected == actual;
+    print_test_status(test_passed, "compare_grid() (Unequal case)");
+    return test_passed;
+}
 
-//     // assert
-// }
+int test_destroy_grid() {
+    // assume
 
-// int test_grid_to_string() {
-//     // assume
+    // act
 
-//     // act
+    // assert
+}
 
-//     // assert
-// }
+int test_grid_to_string() {
+    // assume
 
-// int test_parse_string_to_grid() {
-//     // assume
+    // act
 
-//     // act
+    // assert
+}
 
-//     // assert
-// }
+int test_parse_string_to_grid() {
+    // assume
+
+    // act
+
+    // assert
+}
 
