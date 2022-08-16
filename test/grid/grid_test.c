@@ -16,7 +16,10 @@ int test_compare_grid_if_equal();
 int test_compare_grid_if_unequal();
 int test_destroy_grid();
 int test_grid_to_string();
-int test_parse_string_to_grid();
+int test_parse_string_to_grid_with_blank_status();
+int test_parse_string_to_grid_with_ongoing_status();
+int test_parse_string_to_grid_with_win_status();
+int test_parse_string_to_grid_with_draw_status();
 
 // TODO : Update the following tests later on
 // int test_get_grid_last_update_location();
@@ -27,7 +30,7 @@ int test_parse_string_to_grid();
 
 int main()
 {
-    const int total_test_cases = 7;
+    const int total_test_cases = 11;
 
     int test_cases_passed = test_create_grid() +
         test_mark_on_grid_with_blank_to_ongoing() +
@@ -35,10 +38,11 @@ int main()
         test_mark_on_grid_with_ongoing_to_draw() +
         test_flush_grid() +
         test_compare_grid_if_equal() +
-        test_compare_grid_if_unequal();
-        // test_destroy_grid() +
-        // test_grid_to_string() +
-        // test_parse_string_to_grid();
+        test_compare_grid_if_unequal() +
+        test_parse_string_to_grid_with_blank_status() +
+        test_parse_string_to_grid_with_ongoing_status() +
+        test_parse_string_to_grid_with_win_status() +
+        test_parse_string_to_grid_with_draw_status();
 
     return total_test_cases - test_cases_passed;
 }
@@ -246,27 +250,106 @@ int test_compare_grid_if_unequal() {
     return test_passed;
 }
 
-int test_destroy_grid() {
-    // assume
-
-    // act
-
-    // assert
-}
-
+// Test grid_to_string() to see if it can serialise/stringify a given grid
 int test_grid_to_string() {
     // assume
+    grid_struct input_grid = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+    
+    char* expected = "0X0X0X...,5";
 
     // act
-
+    bool actual = grid_to_string(input_grid);
+    
     // assert
+    bool test_passed = strcmp(expected, actual) == 0;
+    print_test_status(test_passed, "grid_to_string()");
+    return test_passed;
 }
 
-int test_parse_string_to_grid() {
+// Test parse_string_to_grid() function to see if it can convert a stringified grid
+// representing an blank grid into an instance of grid structure and mark its status as blank
+int test_parse_string_to_grid_with_blank_status() {
     // assume
+    char* input = ".........,9";
+
+    grid_struct expected = {
+        ".........",
+        GRID_INFINITY,
+        BLANK
+    };
 
     // act
+    grid_struct actual = parse_string_to_grid(input);
 
     // assert
+    bool test_passed = compare_grid(actual, &expected);
+    print_test_status(test_passed, "parse_string_to_grid()");
+    return test_passed;
 }
 
+// Test parse_string_to_grid() function to see if it can convert a stringified grid
+// representing an ongoing game into an instance of grid structure and mark its status as ongoing
+int test_parse_string_to_grid_with_ongoing_status() {
+    // assume
+    char* input = "0X0X0X...,5";
+
+    grid_struct expected = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+
+    // act
+    grid_struct actual = parse_string_to_grid(input);
+
+    // assert
+    bool test_passed = compare_grid(actual, &expected);
+    print_test_status(test_passed, "parse_string_to_grid()");
+    return test_passed;
+}
+
+// Test parse_string_to_grid() function to see if it can convert a stringified grid
+// representing an ongoing game into an instance of grid structure and mark its status as ongoing
+int test_parse_string_to_grid_with_win_status() {
+    // assume
+    char* input = "0X0X0X...,5";
+
+    grid_struct expected = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+
+    // act
+    grid_struct actual = parse_string_to_grid(input);
+
+    // assert
+    bool test_passed = compare_grid(actual, &expected);
+    print_test_status(test_passed, "parse_string_to_grid()");
+    return test_passed;
+}
+
+// Test parse_string_to_grid() function to see if it can convert a stringified grid
+// representing an ongoing game into an instance of grid structure and mark its status as ongoing
+int test_parse_string_to_grid_with_draw_status() {
+    // assume
+    char* input = "0X0X0X...,5";
+
+    grid_struct expected = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+
+    // act
+    grid_struct actual = parse_string_to_grid(input);
+
+    // assert
+    bool test_passed = compare_grid(actual, &expected);
+    print_test_status(test_passed, "parse_string_to_grid()");
+    return test_passed;
+}
