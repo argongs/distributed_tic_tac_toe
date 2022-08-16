@@ -262,7 +262,7 @@ int test_grid_to_string() {
     char* expected = "0X0X0X...,5";
 
     // act
-    bool actual = grid_to_string(input_grid);
+    char* actual = grid_to_string(input_grid);
     
     // assert
     bool test_passed = strcmp(expected, actual) == 0;
@@ -283,11 +283,11 @@ int test_parse_string_to_grid_with_blank_status() {
     };
 
     // act
-    grid_struct actual = parse_string_to_grid(input);
+    grid_struct* actual = parse_string_to_grid(input);
 
     // assert
     bool test_passed = compare_grid(actual, &expected);
-    print_test_status(test_passed, "parse_string_to_grid()");
+    print_test_status(test_passed, "parse_string_to_grid() (Blank Status)");
     return test_passed;
 }
 
@@ -304,11 +304,11 @@ int test_parse_string_to_grid_with_ongoing_status() {
     };
 
     // act
-    grid_struct actual = parse_string_to_grid(input);
+    grid_struct* actual = parse_string_to_grid(input);
 
     // assert
     bool test_passed = compare_grid(actual, &expected);
-    print_test_status(test_passed, "parse_string_to_grid()");
+    print_test_status(test_passed, "parse_string_to_grid() (Ongoing Status)");
     return test_passed;
 }
 
@@ -316,20 +316,20 @@ int test_parse_string_to_grid_with_ongoing_status() {
 // representing an ongoing game into an instance of grid structure and mark its status as ongoing
 int test_parse_string_to_grid_with_win_status() {
     // assume
-    char* input = "0X0X0X...,5";
+    char* input = "0X0X0X0..,6";
 
     grid_struct expected = {
-        "0X0X0X...",
-        5,
-        ONGOING
+        "0X0X0X0..",
+        6,
+        GAME_WIN
     };
 
     // act
-    grid_struct actual = parse_string_to_grid(input);
+    grid_struct* actual = parse_string_to_grid(input);
 
     // assert
     bool test_passed = compare_grid(actual, &expected);
-    print_test_status(test_passed, "parse_string_to_grid()");
+    print_test_status(test_passed, "parse_string_to_grid() (Win Status)");
     return test_passed;
 }
 
@@ -337,19 +337,19 @@ int test_parse_string_to_grid_with_win_status() {
 // representing an ongoing game into an instance of grid structure and mark its status as ongoing
 int test_parse_string_to_grid_with_draw_status() {
     // assume
-    char* input = "0X0X0X...,5";
+    char* input = "0X0X0XX0X,8";
 
     grid_struct expected = {
-        "0X0X0X...",
-        5,
-        ONGOING
+        "0X0X0XX0X",
+        8,
+        GAME_DRAW
     };
 
     // act
-    grid_struct actual = parse_string_to_grid(input);
+    grid_struct* actual = parse_string_to_grid(input);
 
     // assert
     bool test_passed = compare_grid(actual, &expected);
-    print_test_status(test_passed, "parse_string_to_grid()");
+    print_test_status(test_passed, "parse_string_to_grid() (Draw Status)");
     return test_passed;
 }
