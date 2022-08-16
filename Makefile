@@ -1,5 +1,8 @@
 SHELL = /bin/sh
 CC = gcc -I .
+DEBUG_FLAG = -g
+COMPILE_ONLY_FLAG = -c
+OUTPUT_FLAG = -o
 
 # Directories
 binary_directory = bin
@@ -11,19 +14,20 @@ vpath %.o bin
 
 # For message related modules
 idle_state_message.o : idle_state_message.c idle_state_message.h game_character.h
-	$(CC) -c -g $< -o $(binary_directory)/$@
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
 playing_state_message.o : playing_state_message.c playing_state_message.h game_character.h
-	$(CC) -c -g $< -o $(binary_directory)/$@
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
+# For other modules
 grid.o : grid.c grid.h game_character.h
-	$(CC) -c -g $< -o $(binary_directory)/$@
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
 network.o : network.c network.h
-	$(CC) -c -g $< -o $(binary_directory)/$@
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
 player.o : player.c idle_state_message.o playing_state_message.o grid.o network.o 
-	$(CC) -c -g $< -o $(binary_directory)/$@
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
 # For testing
 .PHONY = test
@@ -33,13 +37,13 @@ test: test.o idle_state_message_test playing_state_message_test grid_test
 	$(binary_directory)/grid_test
 	
 test.o : test.c test.h
-	$(CC) -c -g $< -o $(binary_directory)/$@
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
 idle_state_message_test : idle_state_message_test.c idle_state_message.o test.o
-	$(CC) -g $^ -o $(binary_directory)/$@
+	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
 
 playing_state_message_test : playing_state_message_test.c playing_state_message.o test.o grid.o
-	$(CC) -g $^ -o $(binary_directory)/$@
+	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
 
 grid_test : grid_test.c grid.o test.o
-	$(CC) -g $^ -o $(binary_directory)/$@
+	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
