@@ -3,11 +3,11 @@
 /**
     Indexing of the Grid:
 
-      6 | 7 | 8
+      0 | 1 | 2
     ----+---+----
       3 | 4 | 5
     ----+---+----
-      0 | 1 | 2
+      6 | 7 | 8
 **/
 
 
@@ -17,9 +17,9 @@
 typedef unsigned short int location;
 
 typedef enum {
-    HORIZONTAL_BOTTOM_MAX = 2,
+    HORIZONTAL_BOTTOM_MAX = 8,
     HORIZONTAL_MID_MAX = 5,
-    HORIZONTAL_TOP_MAX = 8,
+    HORIZONTAL_TOP_MAX = 2,
 
     VERTICAL_LEFT_MAX = 6,
     VERTICAL_MID_MAX = 7,
@@ -30,9 +30,9 @@ typedef enum {
 } grid_maxima_enum;
 
 typedef enum {
-    HORIZONTAL_BOTTOM_MIN = 0,
+    HORIZONTAL_BOTTOM_MIN = 6,
     HORIZONTAL_MID_MIN = 3,
-    HORIZONTAL_TOP_MIN = 6,
+    HORIZONTAL_TOP_MIN = 0,
 
     VERTICAL_LEFT_MIN = 0,
     VERTICAL_MID_MIN = 1,
