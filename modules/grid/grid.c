@@ -151,13 +151,17 @@ char* grid_to_string(grid_struct grid) {
 
 // Parse a string into a grid 
 grid_struct* parse_string_to_grid(char* grid_string) {
-    grid_struct* grid = create_grid();
+    grid_struct* grid = malloc (sizeof(grid_struct));
+
     if (grid == NULL)
         return NULL;
 
-    sscanf(grid_string, "%[^,],%hu", grid->contents, &(grid->last_location));
+    sscanf(grid_string, "%m[^,],%hu", &(grid->contents), &(grid->last_location));
     
-    update_grid_status(grid);
+    if (grid->last_location == GRID_INFINITY)
+        grid->recent_status = BLANK;
+    else
+        update_grid_status(grid);
 
     return grid;
 }
