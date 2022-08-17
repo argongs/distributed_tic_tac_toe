@@ -13,6 +13,7 @@
 
 #define GRID_SIZE 9
 #define GRID_INFINITY 9
+#define GRID_ROWS 3
 
 typedef unsigned short int location;
 
