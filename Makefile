@@ -29,6 +29,9 @@ network.o : network.c network.h
 player.o : player.c idle_state_message.o playing_state_message.o grid.o network.o 
 	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
 
+ui.o : ui.c player.o
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
+
 # For testing
 .PHONY = test
 test: test.o idle_state_message_test playing_state_message_test grid_test
