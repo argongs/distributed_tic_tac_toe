@@ -101,11 +101,11 @@ void kill_player(player_struct* player) {
 }
 
 // Broadcasts a player's presence into the network in expectation of an opponent who will ACCEPT the request for a game.
-idle_state_message_struct* broadcast_player(player_struct* player) {
+int broadcast_player(player_struct player) {
     // Message to send
-    char* invite_message = create_invite_message_for_player(*player);
+    char* invite_message = create_invite_message_for_player(player);
     unsigned int message_length = strlen(invite_message);
-    int socket_fd = get_player_socket_file_descriptor(*player);
+    int socket_fd = get_player_socket_file_descriptor(player);
 
     // Destination data
     struct sockaddr_in dest_socket_addr;
@@ -118,6 +118,9 @@ idle_state_message_struct* broadcast_player(player_struct* player) {
         sendto (socket_fd, invite_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
     }
 
+    destroy_idle_state_message(invite_message);
+
+    return 0;
 }
 
 // Observe the network and prepare a list of the opponents.
@@ -157,6 +160,8 @@ int accept_an_opponent(player_struct player, player_struct opponent) {
 
     // Send the ACCEPT message    
     sendto (socket_fd, accept_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
+
+    destroy_idle_state_message(accept_message);
 }
 
 // Getters

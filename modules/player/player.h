@@ -20,7 +20,7 @@ player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket
 void kill_player(player_struct* player);
 
 // Broadcasts a player's presence into the network in expectation of an opponent who will ACCEPT the request for a game.
-idle_state_message_struct* broadcast_player(player_struct* player);
+int broadcast_player(player_struct player);
 
 // Observe the network and prepare a list of the opponents.
 player_struct* look_for_opponents(player_struct player);
