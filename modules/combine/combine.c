@@ -21,17 +21,62 @@ grid_struct* grid = NULL;
 
 pthread_t broadcaster, listener, cooridnator;
 
-static void coordinate_the_game () {
+static int send_grid() {
+    show_grid(*grid);
+    
+    int game_status = get_input_for_grid(player, grid);
+    game_status = get_grid_recent_status(grid);
+    
+    if (game_status == GAME_WIN || game_status == GAME_DRAW) {
+        if(is_player_interested_in_a_rematch()) {
+            flush_grid(grid);
+            show_grid(*grid);
+            get_input_for_grid(player, grid);
+        } else
+            return 1;
+    }
+    
+    send_grid_to_opponent(grid, *player, *opponent);
+}
+
+static void send_first_response () {
+
+    switch (opponent->player_type) {
+
+        case OPPONENT_WITH_PLAYER_INVITE :
+            send_grid();
+            break;
+        case OPPONENT_WITH_OWN_INVITE :
+            accept_an_opponent(*player, *opponent);
+            break;
+        default :;
+    }
+}
+
+static void coordinate_the_game (void* data) {
 
     show_opponent_request(opponent);
     bool opponent_accepted = accept_opponent_request(opponent);
 
     if (opponent_accepted) {
-        // In case of opponent whose INVITE has been accepted, send the ACCEPT response
-        // In case of opponent who has accepted this player's invite, mark the first location and send it to the opponent 
-    } else {
-        kill_player(opponent);
-    }
+        grid_status_enum game_status;
+        send_first_response();
+
+        while (true) {
+            int recieve_status = recieve_grid_from_opponent(grid, *player, *opponent);
+            
+            if (receive_status != 0)
+                break;
+            
+            int send_status = send_grid();
+            
+            if (send_status != 0)
+                break;
+        }
+
+    }  
+    
+    kill_player(opponent);
 }
 
 static void* broadcast (void* data) {
@@ -121,10 +166,12 @@ static int initialise (char* name, game_character character) {
 int genesis(char* name, game_character character) {
 
     initialise(char* name, game_character character);
-    
-
 
 }
 
 
-int apocalypse(); // Apocalypse will never arrive on its own. It will be invoked by the will of the man (end user) 
+int apocalypse() {
+    kill_player(player);
+    kill_player(opponent);
+    destroy_grid(grid);
+} // Apocalypse will never arrive on its own. It will be invoked by the will of the man (end user) 
