@@ -64,7 +64,7 @@ void destroy_grid(grid_struct* grid);
 
 char* grid_to_string(grid_struct grid);
 grid_struct* parse_string_to_grid(char* grid_string);
-
+void copy_grid(grid_struct source, grid_struct* destination);
 
 // Getters
 location get_grid_last_update_location (grid_struct grid);

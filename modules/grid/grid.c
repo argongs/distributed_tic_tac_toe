@@ -166,6 +166,13 @@ grid_struct* parse_string_to_grid(char* grid_string) {
     return grid;
 }
 
+void copy_grid(grid_struct source, grid_struct* destination) {
+    strcpy(destination->contents, source.contents, GRID_SIZE * sizeof());
+    destination->last_location = source.last_location;
+    destination->recent_status = source.recent_status;
+}
+
+
 // Getters
 location get_grid_last_update_location (grid_struct grid) {
     return grid.last_location;
