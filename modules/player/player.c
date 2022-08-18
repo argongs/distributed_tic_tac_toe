@@ -154,8 +154,8 @@ int accept_an_opponent(player_struct player, player_struct opponent) {
 
     // Prepare the destination details
     struct sockaddr_in dest_socket_addr;
-	char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
-    int dest_port = get_player_port(opponent);
+	const char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
+    const int dest_port = get_player_port(opponent);
     parse_address (dest_ipv4_addr, dest_port, &dest_socket_addr);
 
     // Send the ACCEPT message    
@@ -163,6 +163,51 @@ int accept_an_opponent(player_struct player, player_struct opponent) {
 
     destroy_idle_state_message(accept_message);
 }
+
+// Send the grid to the opponent
+int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct opponent) {
+
+    // Prepare the GRID message
+    playing_state_message* message = create_grid_message(grid, data);
+    int message_length = strlen(message);
+    int socket_fd = get_player_socket_file_descriptor(player);
+    
+    // Prepare the destination details
+    struct sockaddr_in dest_socket_addr;
+	const char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
+    const int dest_port = get_player_port(opponent);
+    parse_address (dest_ipv4_addr, dest_port, &dest_socket_addr);
+
+    // Send the GRID message    
+    sendto (socket_fd, message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
+
+    destroy_playing_state_message(message);
+}
+
+// Recieve the grid from the intended opponent
+int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, player_struct opponent) {
+    
+    // Wait for responses to arrive
+    char opponent_response[PLAYING_STATE_MESSAGE_MAX_LENGTH];
+    size_t data_recvd = 0;
+	size_t request_max_size = sizeof (char) * PLAYING_STATE_MESSAGE_MAX_LENGTH;
+    static struct sockaddr_in opponent_socket_addr;
+	
+    socklen_t opponent_sockaddr_len;
+    unsigned short int socket_fd = get_player_socket_file_descriptor(player);
+
+    int recieve_status = recvfrom (socket_fd, opponent_response, request_max_size, 0, (struct sockaddr*) &opponent_socket_addr, &opponent_sockaddr_len);
+
+    if (recieve_status == -1)
+        return -1;
+
+    playing_state_message_struct* message = parse_string_to_playing_state_message (opponent_response);
+    copy_grid(message->grid, current_grid);
+    destroy_playing_state_message_with_grid(message);
+    
+    return 0;
+}
+
 
 // Getters
 char* get_player_name(player_struct player) {
