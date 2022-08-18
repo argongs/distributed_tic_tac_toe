@@ -18,6 +18,8 @@ playing_state_message_struct* create_grid_message (grid_struct* grid, void* data
 playing_state_message_struct* create_win_message (grid_struct* grid, void* data);
 playing_state_message_struct* create_draw_message (grid_struct* grid, void* data);
 playing_state_message_struct* parse_string_to_playing_state_message (char* message);
+
+void destroy_playing_state_message_with_grid(playing_state_message_struct* message);
 void destroy_playing_state_message(playing_state_message_struct* message);
 
 char* playing_state_message_to_string (playing_state_message_struct message);

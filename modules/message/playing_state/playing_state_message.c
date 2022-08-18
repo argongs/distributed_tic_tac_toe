@@ -74,9 +74,15 @@ playing_state_message_struct* parse_string_to_playing_state_message (char* messa
     return playing_state_message;
 }
 
-// Destroy the memory associated with playing state message instance
+// Destroy the memory associated with playing state message instance as well as the grid associated with it
 void destroy_playing_state_message(playing_state_message_struct* message) {
     destroy_grid(message->grid);
+    destroy_playing_state_message(message);
+}
+
+// Destroy the memory associated with playing state message instance
+void destroy_playing_state_message(playing_state_message_struct* message) {
+    message->grid = NULL;
     free(message);
 }
 
