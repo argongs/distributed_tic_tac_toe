@@ -20,6 +20,7 @@ int test_parse_string_to_grid_with_blank_status();
 int test_parse_string_to_grid_with_ongoing_status();
 int test_parse_string_to_grid_with_win_status();
 int test_parse_string_to_grid_with_draw_status();
+int test_copy_grid();
 
 // TODO : Update the following tests later on
 // int test_get_grid_last_update_location();
@@ -30,7 +31,7 @@ int test_parse_string_to_grid_with_draw_status();
 
 int main()
 {
-    const int total_test_cases = 11;
+    const int total_test_cases = 12;
 
     int test_cases_passed = test_create_grid() +
         test_mark_on_grid_with_blank_to_ongoing() +
@@ -42,7 +43,8 @@ int main()
         test_parse_string_to_grid_with_blank_status() +
         test_parse_string_to_grid_with_ongoing_status() +
         test_parse_string_to_grid_with_win_status() +
-        test_parse_string_to_grid_with_draw_status();
+        test_parse_string_to_grid_with_draw_status() +
+        test_copy_grid();
 
     return total_test_cases - test_cases_passed;
 }
@@ -351,5 +353,32 @@ int test_parse_string_to_grid_with_draw_status() {
     // assert
     bool test_passed = compare_grid(actual, &expected);
     print_test_status(test_passed, "parse_string_to_grid() (Draw Status)");
+    return test_passed;
+}
+
+// Test copy_grid() to see if it can copy the source grid contents into the destination grid
+int test_copy_grid() {
+    // assume
+    grid_struct source = {
+        "0X0X0X...",
+        5,
+        ONGOING
+    };
+    
+    grid_struct destination = {
+        "0X0X0X...",
+        4,
+        ONGOING
+    };
+    
+    bool expected = true;
+
+    // act
+    copy_grid(source, &destination);
+
+    // assert
+    bool actual = compare_grid(&source, &destination);
+    bool test_passed = expected == actual;
+    print_test_status(test_passed, "copy_grid()");
     return test_passed;
 }
