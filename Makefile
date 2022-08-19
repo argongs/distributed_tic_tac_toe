@@ -7,7 +7,7 @@ OUTPUT_FLAG = -o
 # Directories
 binary_directory = bin
 
-vpath % modules/message/idle_state:modules/message/playing_state:modules/grid:modules/network:modules/player:modules/test
+vpath % modules/message/idle_state:modules/message/playing_state:modules/grid:modules/network:modules/player:modules/ui:modules/test
 vpath % test/message/idle_state:test/message/playing_state:test/grid
 vpath %.o bin
 
@@ -50,3 +50,7 @@ playing_state_message_test : playing_state_message_test.c playing_state_message.
 
 grid_test : grid_test.c grid.o test.o
 	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
+
+.PHONY = clean
+clean : 
+	rm $(binary_directory)/.*
