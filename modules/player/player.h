@@ -8,7 +8,7 @@ typedef enum {
 
 typedef struct {
     char* name;
-    game_character charachter;
+    game_character character;
     char* ipv4_addr;
     int port;
     int socket_fd;
