@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #include "modules/grid/game_character.h"
 #include "modules/grid/grid.h"
@@ -17,7 +19,7 @@ static void show_grid_indexing() {
     
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_ROWS; j++) {
-            printf ("%c\t", i+j)
+            printf ("%c\t", i+j);
         }
         printf("\n\n");
     }
@@ -26,10 +28,10 @@ static void show_grid_indexing() {
 }
 
 // Accept the user's input
-static void get_input_for_ongoing_game(player_struct player, grid_struct grid*) {
+static void get_input_for_ongoing_game(player_struct player, grid_struct* grid) {
     printf ("Where do you wish to make the mark?\n");
     unsigned int no_of_entries = get_no_of_entries_made_in_grid(*grid);
-    bool both_players_have_not_yet_made_first_move = no_of_entries < 2 
+    bool both_players_have_not_yet_made_first_move = no_of_entries < 2; 
     
     if(both_players_have_not_yet_made_first_move) {
         printf ("Mark can be made on one of the %d locations. The intended location should be empty. The location mapping of the grid is as follows:\n", GRID_SIZE);
@@ -51,7 +53,7 @@ static void get_input_for_ongoing_game(player_struct player, grid_struct grid*) 
 
 // Take input in the form of yes or no (y/n) 
 static bool yes_or_no_input() {
-    char input = '';
+    char input = ' ';
     scanf("%c", &input);
     return tolower(input) == YES ? true : false;
 }
@@ -62,7 +64,7 @@ void show_grid(grid_struct grid) {
     
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_ROWS; j++) {
-            printf ("%c\t", grid.contents[i+j])
+            printf ("%c\t", grid.contents[i+j]);
         }
         printf("\n\n");
     }
