@@ -73,21 +73,21 @@ void show_grid(grid_struct grid) {
 }
 
 // Take the user's input for marking on the grid
-void get_input_for_grid(player_struct player, grid_struct* grid) {
+grid_status_enum get_input_for_grid(player_struct player, grid_struct* grid) {
 
     switch (grid->recent_status) {
         case BLANK:;
         case ONGOING:
             get_input_for_ongoing_game(player, grid);
-            break;
+            return ONGOING;
         case GAME_WIN:
             printf ("Your opponent has won this round!\n");
-            break;
+            return GAME_WIN;
         case GAME_DRAW:
             printf ("It's a tie!\n");
-            break;
-        default:;
-            break;
+            return GAME_DRAW;
+        default: 
+            return BLANK;
     }
 
 }
