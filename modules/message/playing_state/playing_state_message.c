@@ -74,24 +74,25 @@ playing_state_message_struct* parse_string_to_playing_state_message (char* messa
     return playing_state_message;
 }
 
-// Destroy the memory associated with playing state message instance as well as the grid associated with it
-void destroy_playing_state_message(playing_state_message_struct* message) {
-    destroy_grid(message->grid);
-    destroy_playing_state_message(message);
-}
-
 // Destroy the memory associated with playing state message instance
 void destroy_playing_state_message(playing_state_message_struct* message) {
     message->grid = NULL;
     free(message);
 }
 
+// Destroy the memory associated with playing state message instance as well as the grid associated with it
+void destroy_playing_state_message_with_grid(playing_state_message_struct* message) {
+    destroy_grid(message->grid);
+    destroy_playing_state_message(message);
+}
+
+
 // Serialise/Stringify a playing state message instance
 char* playing_state_message_to_string (playing_state_message_struct message) {
     size_t playing_state_message_max_size = (PLAYING_STATE_MESSAGE_MAX_LENGTH) * sizeof(char);
     char* playing_state_message = malloc (playing_state_message_max_size);
 
-    int bytes_read = snprintf(playing_state_message, playing_state_message_max_size, "%c,%s,%d", message.type, message.grid->contents, message.grid->last_location);
+    int bytes_read = snprintf(playing_state_message, playing_state_message_max_size, "%c,%s,%d%*[^\n]", message.type, message.grid->contents, message.grid->last_location);
 
     return playing_state_message;
 }
