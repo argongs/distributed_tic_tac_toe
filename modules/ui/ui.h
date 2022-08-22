@@ -10,4 +10,4 @@ grid_status_enum get_input_for_grid(player_struct player, grid_struct* grid); //
 bool is_player_interested_in_a_rematch();
 
 void show_opponent_request(player_struct opponent);
-bool accept_opponent_request(player_struct player, player_struct opponent);
+bool accept_opponent_request(player_struct opponent);
