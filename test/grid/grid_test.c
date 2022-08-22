@@ -360,17 +360,19 @@ int test_parse_string_to_grid_with_draw_status() {
 int test_copy_grid() {
     // assume
     grid_struct source = {
-        "0X0X0X...",
+        malloc (GRID_SIZE * sizeof(char)),
         5,
         ONGOING
     };
+    strcpy(source.contents, "0X00XXX0.");
     
     grid_struct destination = {
-        "0X0X0X...",
+        malloc (GRID_SIZE * sizeof(char)),
         4,
         ONGOING
     };
-    
+    strcpy(destination.contents, "0X00XXX0.");
+
     bool expected = true;
 
     // act
