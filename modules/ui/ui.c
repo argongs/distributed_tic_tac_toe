@@ -19,7 +19,7 @@ static void show_grid_indexing() {
     
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_ROWS; j++) {
-            printf ("%c\t", i+j);
+            printf ("%d\t", i+j);
         }
         printf("\n\n");
     }
@@ -94,7 +94,7 @@ grid_status_enum get_input_for_grid(player_struct player, grid_struct* grid) {
 
 // Take user's input to understand whether or not he/she is interested in a rematch
 bool is_player_interested_in_a_rematch() {
-    printf ("Do you wish to go for a rematch? (y/n)");
+    printf ("Do you wish to go for a rematch? (y/n)\t");
     return yes_or_no_input();
 }
 
@@ -103,10 +103,10 @@ void show_opponent_request(player_struct opponent) {
     
     switch (opponent.player_type) {
         case OPPONENT_WITH_PLAYER_INVITE:
-            printf ("%s has accepted your request.", opponent.name);
+            printf ("%s has accepted your request.\n", opponent.name);
             break;
         case OPPONENT_WITH_OWN_INVITE:
-            printf ("%s has sent an invitation to you.", opponent.name);
+            printf ("%s has sent an invitation to you.\n", opponent.name);
             break;
         default:;
     }
@@ -115,6 +115,6 @@ void show_opponent_request(player_struct opponent) {
 
 // Accept the opponent for playing the game
 bool accept_opponent_request(player_struct opponent) {
-    printf ("Are you interested in playing against %s? (y/n)", opponent.name);
+    printf ("Are you interested in playing against %s? (y/n)\t", opponent.name);
     return yes_or_no_input();
 }
