@@ -23,7 +23,10 @@ static char* create_invite_message_for_player (player_struct player) {
         NULL
     );
     
-    return idle_state_message_to_string(*invite_message_data);
+    char* invite_message = idle_state_message_to_string(*invite_message_data);
+    destroy_idle_state_message(invite_message_data);
+
+    return invite_message;
 
 }
 
@@ -45,12 +48,12 @@ static int generate_random_port () {
 }
 
 // Create a new player using the name and character of preference
-player_struct* create_player(char* name, game_character charachter) {
+player_struct* create_player(char* name, game_character character) {
     player_struct* player = malloc (sizeof(player_struct));
 
     if (player != NULL) {
         player->name = name;
-        player->charachter = charachter;
+        player->character = character;
 
         int socket_fd = create_udp_socket();
         int port = generate_random_port();
@@ -70,16 +73,16 @@ player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket
     player_struct* opponent = malloc (sizeof(player_struct));
 
     if (opponent != NULL) {
-        opponent->ipv4_addr = malloc (INET_ADDRSTRLEN * sizeof(char));
-        opponent->port = opponent_socket_address.sin_port;
+        opponent->ipv4_addr = inet_ntoa(opponent_socket_address.sin_addr);
+        opponent->port = ntohs(opponent_socket_address.sin_port);
         opponent->socket_fd = socket_fd;
 
-        inet_ntop(AF_INET, &(opponent_socket_address.sin_addr), opponent->ipv4_addr, INET_ADDRSTRLEN);
+        // inet_ntop(AF_INET, &(opponent_socket_address.sin_addr), opponent->ipv4_addr, INET_ADDRSTRLEN);
 
         idle_state_message_struct* idle_state_message = parse_string_to_idle_state_message(request_message);
         
         opponent->name = idle_state_message_get_name(*idle_state_message);
-        opponent->charachter = idle_state_message_get_character(*idle_state_message);
+        opponent->character = idle_state_message_get_character(*idle_state_message);
 
         switch(idle_state_message_get_type(*idle_state_message)) {
             case INVITE:
@@ -104,7 +107,7 @@ void kill_player(player_struct* player) {
 int broadcast_player(player_struct player) {
     // Message to send
     char* invite_message = create_invite_message_for_player(player);
-    unsigned int message_length = strlen(invite_message);
+    size_t message_length = strlen(invite_message);
     int socket_fd = get_player_socket_file_descriptor(player);
 
     // Destination data
@@ -114,11 +117,14 @@ int broadcast_player(player_struct player) {
     
     // Iteratively broadcast INVITE message to all the possible players
     for (int destination_port = START_PORT; destination_port < max_port; destination_port++) {
-        parse_address (dest_ipv4_addr, destination_port, &dest_socket_addr);
-        sendto (socket_fd, invite_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
+        if (destination_port != player.port) {
+            parse_address (dest_ipv4_addr, destination_port, &dest_socket_addr);
+            printf("Sending message : %s\n", invite_message);
+            sendto (socket_fd, invite_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
+        }
     }
 
-    destroy_idle_state_message(invite_message);
+    free(invite_message);
 
     return 0;
 }
@@ -128,8 +134,7 @@ player_struct* look_for_opponents(player_struct player) {
 
     // Wait for responses to arrive
     char opponent_request[IDLE_STATE_MESSAGE_MAX_LENGTH];
-    size_t data_recvd = 0;
-	size_t request_max_size = sizeof (char) * IDLE_STATE_MESSAGE_MAX_LENGTH;
+    size_t request_max_size = sizeof (char) * IDLE_STATE_MESSAGE_MAX_LENGTH;
     static struct sockaddr_in opponent_socket_addr;
 	socklen_t opponent_sockaddr_len;
     unsigned short int socket_fd = get_player_socket_file_descriptor(player);
@@ -154,34 +159,36 @@ int accept_an_opponent(player_struct player, player_struct opponent) {
 
     // Prepare the destination details
     struct sockaddr_in dest_socket_addr;
-	const char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
-    const int dest_port = get_player_port(opponent);
+	char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
+    int dest_port = get_player_port(opponent);
     parse_address (dest_ipv4_addr, dest_port, &dest_socket_addr);
 
     // Send the ACCEPT message    
     sendto (socket_fd, accept_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
 
-    destroy_idle_state_message(accept_message);
+    free(accept_message);
 }
 
 // Send the grid to the opponent
 int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct opponent) {
 
     // Prepare the GRID message
-    playing_state_message* message = create_grid_message(grid, data);
+    playing_state_message_struct* grid_message = create_grid_message(grid, NULL);
+    char* message = playing_state_message_to_string(*grid_message);
     int message_length = strlen(message);
     int socket_fd = get_player_socket_file_descriptor(player);
     
     // Prepare the destination details
     struct sockaddr_in dest_socket_addr;
-	const char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
-    const int dest_port = get_player_port(opponent);
+	char* dest_ipv4_addr = get_player_ipv4_addr(opponent);
+    int dest_port = get_player_port(opponent);
     parse_address (dest_ipv4_addr, dest_port, &dest_socket_addr);
 
     // Send the GRID message    
     sendto (socket_fd, message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
 
-    destroy_playing_state_message(message);
+    free(message);
+    destroy_playing_state_message_with_grid(grid_message);
 }
 
 // Recieve the grid from the intended opponent
@@ -202,7 +209,7 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
         return -1;
 
     playing_state_message_struct* message = parse_string_to_playing_state_message (opponent_response);
-    copy_grid(message->grid, current_grid);
+    copy_grid(*(message->grid), current_grid);
     destroy_playing_state_message_with_grid(message);
     
     return 0;
@@ -215,7 +222,7 @@ char* get_player_name(player_struct player) {
 }
 
 game_character get_player_character(player_struct player) {
-    return player.charachter;
+    return player.character;
 }
 
 char* get_player_ipv4_addr(player_struct player) {
@@ -225,6 +232,12 @@ char* get_player_ipv4_addr(player_struct player) {
 int get_player_port(player_struct player) {
     return player.port;
 }
-int get_player_socket_descriptor(player_struct player) {
+
+int get_player_socket_file_descriptor(player_struct player) {
     return player.socket_fd;
-} 
+}
+
+// Setters
+void set_player_type(player_struct* player, player_type_enum player_type) {
+    player->player_type = player_type;
+}
