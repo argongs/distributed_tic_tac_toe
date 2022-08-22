@@ -31,7 +31,7 @@ int accept_an_opponent(player_struct player, player_struct opponent);
 // Send the grid to the opponent
 int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct opponent);
 // Recieve the grid from the intended opponent
-int recieve_grid_from_opponent(grid_struct* grid, player_struct opponent);
+int recieve_grid_from_opponent(grid_struct* grid, player_struct player, player_struct opponent);
 
 // Getters
 char* get_player_name(player_struct player);
