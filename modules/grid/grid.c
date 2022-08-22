@@ -167,7 +167,7 @@ grid_struct* parse_string_to_grid(char* grid_string) {
 }
 
 void copy_grid(grid_struct source, grid_struct* destination) {
-    strcpy(destination->contents, source.contents, GRID_SIZE * sizeof());
+    strncpy(destination->contents, source.contents, GRID_SIZE * sizeof(char));
     destination->last_location = source.last_location;
     destination->recent_status = source.recent_status;
 }
