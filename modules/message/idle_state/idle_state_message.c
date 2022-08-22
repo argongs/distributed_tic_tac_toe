@@ -64,8 +64,6 @@ idle_state_message_struct* create_accept_message (char* name, game_character cha
 
 // Destroy the memory allocated for the idle state message
 void destroy_idle_state_message(idle_state_message_struct* message) {
-    free(message->name);
-    free(message->data);
     free(message);
 }
 
@@ -73,7 +71,7 @@ void destroy_idle_state_message(idle_state_message_struct* message) {
 idle_state_message_struct* parse_string_to_idle_state_message(char* message) {
     
     idle_state_message_struct* idle_state_message = create_blank_idle_state_message();
-    int no_of_variables_scanned = sscanf(message, "%c,%[^,],%c", (char*) &(idle_state_message->type), idle_state_message->name, (char*) &(idle_state_message->character));
+    int no_of_variables_scanned = sscanf(message, "%c,%[^,],%c%*[^\n]", (char*) &(idle_state_message->type), idle_state_message->name, (char*) &(idle_state_message->character));
     return idle_state_message;
 }
 
@@ -82,6 +80,9 @@ char* idle_state_message_to_string (idle_state_message_struct message) {
 
     size_t idle_state_message_max_size = (IDLE_STATE_MESSAGE_MAX_LENGTH) * sizeof(char);
     char* idle_state_message = malloc (idle_state_message_max_size);
+
+    if (idle_state_message == NULL)
+        return NULL;
 
     int bytes_read = snprintf(idle_state_message, idle_state_message_max_size, "%c,%s,%c", message.type, message.name, message.character);
 
