@@ -64,7 +64,7 @@ static void coordinate_the_game () {
         grid_status_enum game_status;
         send_first_response();
 
-        while (true) {
+        while (true && opponent != null) {
             int recieve_status = recieve_grid_from_opponent(grid, *player, *opponent);
             
             if (recieve_status != 0)
