@@ -101,6 +101,7 @@ player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket
 // Kill the player
 void kill_player(player_struct* player) {
     free(player);
+    player = NULL;
 }
 
 // Broadcasts a player's presence into the network in expectation of an opponent who will ACCEPT the request for a game.
