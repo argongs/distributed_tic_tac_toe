@@ -16,10 +16,10 @@
 // Display the grid locations
 static void show_grid_indexing() {
     printf ("\n");
-    
+    int temp = 0;
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_ROWS; j++) {
-            printf ("%d\t", i+j);
+            printf ("%d\t", temp++);
         }
         printf("\n\n");
     }
