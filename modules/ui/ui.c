@@ -61,10 +61,11 @@ static bool yes_or_no_input() {
 // Display the game grid
 void show_grid(grid_struct grid) {
     printf ("Grid\n");
-    
+    fflush(stdout);
+    int temp = 0;
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_ROWS; j++) {
-            printf ("%c\t", grid.contents[i+j]);
+            printf ("%c\t", grid.contents[temp++]);
         }
         printf("\n\n");
     }
