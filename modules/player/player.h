@@ -17,7 +17,7 @@ typedef struct {
 
 player_struct* create_player(char* name, game_character charachter);
 player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket_address, char* request_message);
-void kill_player(player_struct* player);
+void kill_player(player_struct** player);
 
 // Broadcasts a player's presence into the network in expectation of an opponent who will ACCEPT the request for a game.
 int broadcast_player(player_struct player);
