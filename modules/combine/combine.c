@@ -57,33 +57,36 @@ static void send_first_response () {
 
 static void coordinate_the_game () {
 
-    show_opponent_request(*opponent);
-    bool opponent_accepted = accept_opponent_request(*opponent);
+    if (opponent != NULL) {
+        show_opponent_request(*opponent);
+        bool opponent_accepted = accept_opponent_request(*opponent);
 
-    if (opponent_accepted) {
-        grid_status_enum game_status;
-        send_first_response();
+        if (opponent_accepted) {
+            grid_status_enum game_status;
+            send_first_response();
 
-        while (true && opponent != NULL) {
-            int recieve_status = recieve_grid_from_opponent(grid, *player, *opponent);
-            
-            if (recieve_status != 0)
-                break;
-            
-            int send_status = send_grid();
-            
-            if (send_status != 0)
-                break;
-        }
+            while (true) {
+                int recieve_status = recieve_grid_from_opponent(grid, *player, *opponent);
+                
+                if (recieve_status != 0)
+                    break;
+                
+                int send_status = send_grid();
+                
+                if (send_status != 0)
+                    break;
+            }
 
-    }  
-    
-    kill_player(opponent);
+        }  
+        
+        kill_player(&opponent);
+    }
+
 }
 
 static void* broadcast (void* data) {
     
-    const unsigned int sleep_time = 1;
+    const unsigned int sleep_time = 3;
 
     while (1) {
         sem_wait(&opponent_semaphore);
@@ -91,21 +94,17 @@ static void* broadcast (void* data) {
         if (opponent == NULL){
             printf("Broadcasting your presence into the network ...\n");
             broadcast_player(*player);
-            sem_post(&opponent_semaphore);
         }
-        else {
-            sem_post(&opponent_semaphore);
-            sleep(sleep_time);
-        }
-
-        
+            
+        sem_post(&opponent_semaphore);
+        sleep(sleep_time);
     }
 
 }
 
 static void* sniff (void* data) {
 
-    const unsigned int sleep_time = 1;
+    const unsigned int sleep_time = 2;
 
     while (1) {
         sem_wait(&opponent_semaphore);
@@ -113,13 +112,10 @@ static void* sniff (void* data) {
         if (opponent == NULL) {
             printf("Seeking out opponents for you ...\n");
             opponent = look_for_opponents(*player);
-            sem_post(&opponent_semaphore);
         }
-        else {
-            sem_post(&opponent_semaphore);
-            sleep(sleep_time);
-        }
-    
+        
+        sem_post(&opponent_semaphore);
+        sleep(sleep_time);
     }
 
 }
@@ -133,12 +129,10 @@ static void* coordinate (void* data) {
 
         if (opponent != NULL) {
             coordinate_the_game();
-            sem_post(&opponent_semaphore);
         }
-        else {
-            sem_post(&opponent_semaphore);
-            sleep(sleep_time);
-        }
+        
+        sem_post(&opponent_semaphore);
+        sleep(sleep_time);
     }
 
     return NULL;
@@ -187,15 +181,15 @@ static int initialise (char* name, game_character character) {
 }
 
 int genesis(char* name, game_character character) {
-    printf("Let there be light!\n");
+    printf("\nLet there be light!\n");
     initialise(name, character);
 }
 
 void apocalypse() {
-    printf("Apocalypse, Come!\n");
+    printf("\nApocalypse, Come!\n");
 
-    kill_player(player);
-    kill_player(opponent);
+    kill_player(&player);
+    kill_player(&opponent);
     destroy_grid(grid);
     exit(1);
 } // Apocalypse will never arrive on its own. It will be invoked by the will of the man (end user) 
