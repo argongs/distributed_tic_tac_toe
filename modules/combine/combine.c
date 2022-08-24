@@ -64,7 +64,7 @@ static void coordinate_the_game () {
         grid_status_enum game_status;
         send_first_response();
 
-        while (true && opponent != null) {
+        while (true && opponent != NULL) {
             int recieve_status = recieve_grid_from_opponent(grid, *player, *opponent);
             
             if (recieve_status != 0)
@@ -116,8 +116,8 @@ static void* sniff (void* data) {
             sem_post(&opponent_semaphore);
         }
         else {
-            sleep(sleep_time);
             sem_post(&opponent_semaphore);
+            sleep(sleep_time);
         }
     
     }
