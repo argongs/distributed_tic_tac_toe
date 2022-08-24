@@ -188,7 +188,7 @@ int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct
     // Send the GRID message    
     sendto (socket_fd, message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
 
-    free(message);
+    //free(message);
     destroy_playing_state_message_with_grid(grid_message);
 }
 
