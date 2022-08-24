@@ -83,7 +83,7 @@ grid_struct* create_grid() {
     grid_struct* grid = malloc (sizeof(grid_struct));
     grid->contents = malloc (GRID_SIZE * sizeof(char));
 
-    if (grid == NULL)
+    if (grid == NULL || grid->contents == NULL)
         return NULL;
 
     flush_grid(grid);
