@@ -68,13 +68,17 @@ static void coordinate_the_game () {
             while (true) {
                 int recieve_status = recieve_grid_from_opponent(grid, *player, *opponent);
                 
-                if (recieve_status != 0)
+                if (recieve_status == -1) {
+                    printf("Failed to recieve a response from %s\n", opponent->name);
                     break;
+                }
                 
                 int send_status = send_grid();
                 
-                if (send_status != 0)
+                if (send_status == -1) {
+                    printf("Failed to send message to %s\n", opponent->name);
                     break;
+                }
             }
 
         }  
@@ -132,7 +136,7 @@ static void* coordinate (void* data) {
         }
         
         sem_post(&opponent_semaphore);
-        sleep(sleep_time);
+        //sleep(sleep_time);
     }
 
     return NULL;
