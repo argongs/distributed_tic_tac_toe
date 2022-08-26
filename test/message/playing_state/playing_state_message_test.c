@@ -14,6 +14,8 @@ bool test_parse_string_to_playing_state_message();
 bool test_playing_state_message_to_string();
 bool test_compare_if_equal();
 bool test_compare_if_unequal();
+bool test_is_it_playing_state_message_positive_case ();
+bool test_is_it_playing_state_message_negative_case ();
 
 // TODO : Update the following tests
 // bool test_playing_state_message_get_type();
@@ -25,7 +27,7 @@ bool test_compare_if_unequal();
 int main()
 {
 
-    const int total_test_cases = 7;
+    const int total_test_cases = 9;
 
     int test_cases_passed = test_create_grid_message() +
                             test_create_win_message() +
@@ -33,7 +35,9 @@ int main()
                             test_parse_string_to_playing_state_message() +
                             test_playing_state_message_to_string() +
                             test_compare_if_equal() +
-                            test_compare_if_unequal();
+                            test_compare_if_unequal() +
+                            test_is_it_playing_state_message_positive_case() +
+                            test_is_it_playing_state_message_negative_case();
 
     return total_test_cases - test_cases_passed;
 }
@@ -215,5 +219,37 @@ bool test_compare_if_unequal()
     bool test_passed = actual != expected;
 
     print_test_status(test_passed, "compare_playing_state_message() (Unqual Case)");
+    return test_passed;
+}
+
+// Test if is_it_playing_state_message() can detect a playing state message if the message IS a playing state message
+bool test_is_it_playing_state_message_positive_case () {
+    // assume
+    char *message = "G,X0X0.....,1";
+    bool expected = true;
+
+    // act
+    bool actual = is_it_playing_state_message(message);
+
+    // assert
+    bool test_passed = expected == actual;
+
+    print_test_status(test_passed, "is_it_playing_state_message() (Positive)");
+    return test_passed;
+}
+
+// Test if is_it_playing_state_message() can detect a playing state message if the message IS NOT a playing state message
+bool test_is_it_playing_state_message_negative_case () {
+    // assume
+    char *message = "kxfmlxdflbm";
+    bool expected = false;
+
+    // act
+    bool actual = is_it_playing_state_message(message);
+
+    // assert
+    bool test_passed = expected == actual;
+
+    print_test_status(test_passed, "is_it_playing_state_message() (Negative)");
     return test_passed;
 }

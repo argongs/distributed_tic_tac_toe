@@ -25,6 +25,8 @@ void destroy_playing_state_message(playing_state_message_struct* message);
 char* playing_state_message_to_string (playing_state_message_struct message);
 int compare_playing_state_message(playing_state_message_struct message1, playing_state_message_struct message2);
 
+bool is_it_playing_state_message (char* message);
+
 // Getters
 playing_state_message_type_enum playing_state_message_get_type (playing_state_message_struct message);
 grid_struct playing_state_message_get_grid (playing_state_message_struct message);

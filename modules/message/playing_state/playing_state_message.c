@@ -106,6 +106,18 @@ int compare_playing_state_message(playing_state_message_struct message1, playing
     return type_is_same & grid_is_same & data_is_same;
 }
 
+// Checks if a given message a playing state like message or not
+bool is_it_playing_state_message (char* message) {
+    switch (message[0]) {
+        case GRID:;
+        case WIN:;
+        case DRAW:
+            return true;
+        default:
+            return false;
+    }
+}
+
 // Getters
 playing_state_message_type_enum playing_state_message_get_type (playing_state_message_struct message) {
     return message.type;

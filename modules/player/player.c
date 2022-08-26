@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -204,12 +205,19 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
     socklen_t opponent_sockaddr_len;
     unsigned short int socket_fd = get_player_socket_file_descriptor(player);
 
-    int recieve_status = recvfrom (socket_fd, opponent_response, request_max_size, 0, (struct sockaddr*) &opponent_socket_addr, &opponent_sockaddr_len);
+    int recieve_status = 0;
+    
+    do {
+        recieve_status = recvfrom (socket_fd, opponent_response, request_max_size, 0, (struct sockaddr*) &opponent_socket_addr, &opponent_sockaddr_len);
 
-    if (recieve_status == -1)
-        return -1;
+        if (recieve_status == -1)
+            return -1;
 
+    } while (!is_it_playing_state_message(opponent_response));
+    
     playing_state_message_struct* message = parse_string_to_playing_state_message (opponent_response);
+    
+    
     copy_grid(*(message->grid), current_grid);
     destroy_playing_state_message_with_grid(message);
     
