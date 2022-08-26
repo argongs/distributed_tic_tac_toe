@@ -48,8 +48,8 @@ test: test.o grid_test idle_state_message_test playing_state_message_test
 	$(binary_directory)/playing_state_message_test
 	$(binary_directory)/grid_test
 	
-test.o : test.c test.h
-	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $(binary_directory)/$@
+$(binary_directory)/test.o : test.c test.h
+	$(CC) $(COMPILE_ONLY_FLAG) $(DEBUG_FLAG) $< $(OUTPUT_FLAG) $@
 
 idle_state_message_test : idle_state_message_test.c test.o $(binary_directory)/idle_state_message.o
 	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
@@ -57,7 +57,7 @@ idle_state_message_test : idle_state_message_test.c test.o $(binary_directory)/i
 playing_state_message_test : playing_state_message_test.c test.o $(binary_directory)/grid.o $(binary_directory)/playing_state_message.o
 	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
 
-grid_test : grid_test.c test.o $(binary_directory)/grid.o
+grid_test : grid_test.c $(binary_directory)/test.o $(binary_directory)/grid.o
 	$(CC) $(DEBUG_FLAG) $^ $(OUTPUT_FLAG) $(binary_directory)/$@
 
 .PHONY = clean
