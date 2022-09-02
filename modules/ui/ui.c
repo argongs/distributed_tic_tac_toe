@@ -15,6 +15,8 @@
 
 // Display the grid locations
 static void show_grid_indexing() {
+    fprintf(stderr, "show_grid_indexing() start");
+    
     printf ("\n");
     int temp = 0;
     for (int i = 0; i < GRID_ROWS; i++) {
@@ -25,10 +27,13 @@ static void show_grid_indexing() {
     }
 
     printf("\n");
+    fprintf(stderr, "show_grid_indexing() end");
 }
 
 // Accept the user's input
 static void get_input_for_ongoing_game(player_struct player, grid_struct* grid) {
+    fprintf(stderr, "get_input_for_ongoing_game() start");
+    
     printf ("Where do you wish to make the mark?\n");
     unsigned int no_of_entries = get_no_of_entries_made_in_grid(*grid);
     bool both_players_have_not_yet_made_first_move = no_of_entries < 2; 
@@ -49,17 +54,25 @@ static void get_input_for_ongoing_game(player_struct player, grid_struct* grid) 
     }
 
     mark_on_grid(grid, player.character, last_location);
+    fprintf(stderr, "get_input_for_ongoing_game() end");
 }
 
 // Take input in the form of yes or no (y/n) 
 static bool yes_or_no_input() {
+    fprintf(stderr, "yes_or_no_input() start");
+    
     char input = ' ';
     scanf("%c", &input);
+    
+    fprintf(stderr, "yes_or_no_input() end");
+
     return tolower(input) == YES ? true : false;
 }
 
 // Display the game grid
 void show_grid(grid_struct grid) {
+    fprintf(stderr, "show_grid() start");
+
     printf ("Grid\n");
     fflush(stdout);
     int temp = 0;
@@ -71,36 +84,51 @@ void show_grid(grid_struct grid) {
     }
 
     printf("\n");
+
+    fprintf(stderr, "show_grid() end");
 }
 
 // Take the user's input for marking on the grid
 grid_status_enum get_input_for_grid(player_struct player, grid_struct* grid) {
+    fprintf(stderr, "get_input_for_grid() start");
 
+    grid_status_enum updated_grid_status = BLANK;
     switch (grid->recent_status) {
         case BLANK:;
         case ONGOING:
             get_input_for_ongoing_game(player, grid);
-            return ONGOING;
+            updated_grid_status = ONGOING;
+            break;
         case GAME_WIN:
             printf ("Your opponent has won this round!\n");
-            return GAME_WIN;
+            updated_grid_status = GAME_WIN;
+            break;
         case GAME_DRAW:
             printf ("It's a tie!\n");
-            return GAME_DRAW;
-        default: 
-            return BLANK;
+            updated_grid_status = GAME_DRAW;
+            break;
+        default:;
     }
 
+    fprintf(stderr, "get_input_for_grid() end");
+
+    return updated_grid_status;
 }
 
 // Take user's input to understand whether or not he/she is interested in a rematch
 bool is_player_interested_in_a_rematch() {
+    fprintf(stderr, "is_player_interested_in_a_rematch() start");
+    
     printf ("Do you wish to go for a rematch? (y/n)\t");
+
+    fprintf(stderr, "is_player_interested_in_a_rematch() end");
+
     return yes_or_no_input();
 }
 
 // Show the type of request recieved by the opponent (ACCEPT/INVITE)
 void show_opponent_request(player_struct opponent) {
+    fprintf(stderr, "show_opponent_request() start");
     
     switch (opponent.player_type) {
         case OPPONENT_WITH_PLAYER_INVITE:
@@ -112,10 +140,16 @@ void show_opponent_request(player_struct opponent) {
         default:;
     }
 
+    fprintf(stderr, "show_opponent_request() end");
 }
 
 // Accept the opponent for playing the game
 bool accept_opponent_request(player_struct opponent) {
+    fprintf(stderr, "accept_opponent_request() start");
+
     printf ("Are you interested in playing against %s? (y/n)\t", opponent.name);
+    
+    fprintf(stderr, "accept_opponent_request() end");
+
     return yes_or_no_input();
 }

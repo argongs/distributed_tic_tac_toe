@@ -10,7 +10,8 @@
 
 // Analyse the grid to understand its current status
 static grid_struct* update_grid_status(grid_struct* grid) {
-    
+    fprintf(stderr, "update_grid_status() start");
+
     unsigned short int temp = 0;
 
     // Horizontal Bottom
@@ -75,11 +76,15 @@ static grid_struct* update_grid_status(grid_struct* grid) {
         else
             set_grid_recent_status(grid, GAME_DRAW);
 
+    fprintf(stderr, "update_grid_status() end");
+
     return grid;
 }
 
 // Creates a new grid ready for usage. Returns a pointer to that grid for easier access to it.
 grid_struct* create_grid() {
+    fprintf(stderr, "create_grid() start");
+
     grid_struct* grid = malloc (sizeof(grid_struct));
     grid->contents = malloc (GRID_SIZE * sizeof(char));
 
@@ -87,25 +92,32 @@ grid_struct* create_grid() {
         return NULL;
 
     flush_grid(grid);
+
+    fprintf(stderr, "create_grid() end");
     return grid;
 }
 
 // Marks a charachter (CROSS or ZERO) on the grid. Returns 1 if the location is invalid.
 int mark_on_grid(grid_struct* grid, game_character character, location location) {
+    fprintf(stderr, "mark_on_grid() start");    
     
+    int return_value = 0;
     if (location < GRID_INFINITY && grid->contents[location] == EMPTY) {
         grid->contents[location] = character;
         set_grid_last_update_location (grid, location);
         update_grid_status(grid);
     }
     else
-        return 1;
+        return_value = 1;
 
-    return 0;
+    fprintf(stderr, "mark_on_grid() end");
+
+    return return_value;
 }
 
 // Clean the grid by reversing it back to the blank state.
 grid_struct* flush_grid(grid_struct* grid) {
+    fprintf(stderr, "flush_grid() start");
 
     for (location i = 0; i < GRID_SIZE; i++)
         grid->contents[i] = EMPTY;
@@ -113,6 +125,7 @@ grid_struct* flush_grid(grid_struct* grid) {
     set_grid_last_update_location(grid, GRID_INFINITY);
     set_grid_recent_status(grid, BLANK);
 
+    fprintf(stderr, "flush_grid() end");
     return grid;
 }
 
@@ -120,7 +133,8 @@ grid_struct* flush_grid(grid_struct* grid) {
 
 // Compares 2 grid and tells whether they are same. Returns 1 if both match otherwise return 0.
 int compare_grid(grid_struct* grid1, grid_struct* grid2) {
-
+    fprintf(stderr, "compare_grid() start");
+    
     bool same_memory_location = grid1 == grid2;
 
     if (same_memory_location)
@@ -134,23 +148,33 @@ int compare_grid(grid_struct* grid1, grid_struct* grid2) {
                     get_no_of_entries_made_in_grid(*grid1) == get_no_of_entries_made_in_grid(*grid2) &&
                     get_grid_recent_status(*grid1) == get_grid_recent_status(*grid2);
 
+    fprintf(stderr, "compare_grid() end");
     return contents_match && attributes_match;
 }
 
 // Send the grid to oblivion
 void destroy_grid(grid_struct* grid) {
+    fprintf(stderr, "destroy_grid() start");
     free(grid);
+    fprintf(stderr, "destroy_grid() end");
 }
 
 // Translate the grid contents along with the last move location into a String
 char* grid_to_string(grid_struct grid) {
+    fprintf(stderr, "grid_to_string() start");
+    
     char* stringified_grid = malloc (sizeof(char) * (GRID_SIZE + 2));
     int bytes_read = sprintf(stringified_grid, "%s,%u", grid.contents, grid.last_location); 
+    
+    fprintf(stderr, "grid_to_string() end");
+    
     return stringified_grid;
 }
 
 // Parse a string into a grid 
 grid_struct* parse_string_to_grid(char* grid_string) {
+    fprintf(stderr, "parse_string_to_grid() start");    
+    
     grid_struct* grid = malloc (sizeof(grid_struct));
 
     if (grid == NULL)
@@ -163,13 +187,19 @@ grid_struct* parse_string_to_grid(char* grid_string) {
     else
         update_grid_status(grid);
 
+    fprintf(stderr, "parse_string_to_grid() end");
+
     return grid;
 }
 
 void copy_grid(grid_struct source, grid_struct* destination) {
+    fprintf(stderr, "copy_grid() start");    
+
     strncpy(destination->contents, source.contents, GRID_SIZE * sizeof(char));
     destination->last_location = source.last_location;
     destination->recent_status = source.recent_status;
+
+    fprintf(stderr, "copy_grid() end");    
 }
 
 
@@ -179,13 +209,15 @@ location get_grid_last_update_location (grid_struct grid) {
 }
 
 unsigned short int get_no_of_entries_made_in_grid (grid_struct grid) {
-    
+    fprintf(stderr, "get_no_of_entries_made_in_grid() start");    
+
     unsigned short int empty_entries = 0;
 
     for (int i = 0; i < GRID_SIZE; i++)
         if (grid.contents[i] == EMPTY)
             empty_entries++ ;
 
+    fprintf(stderr, "get_no_of_entries_made_in_grid() end");    
     return GRID_SIZE - empty_entries;
 }
 
