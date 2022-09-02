@@ -17,7 +17,8 @@
 
 // Create an INVITE for a given player
 static char* create_invite_message_for_player (player_struct player) {
-    
+    fprintf(stderr, "create_invite_message_for_player() start");
+
     idle_state_message_struct* invite_message_data = create_invite_message (
         get_player_name(player), 
         get_player_character(player), 
@@ -27,29 +28,37 @@ static char* create_invite_message_for_player (player_struct player) {
     char* invite_message = idle_state_message_to_string(*invite_message_data);
     destroy_idle_state_message(invite_message_data);
 
-    return invite_message;
+    fprintf(stderr, "create_invite_message_for_player() end");
 
+    return invite_message;
 }
 
 // Create an ACCEPT message for a given player
 static char* create_accept_message_for_player (player_struct player) {
+    fprintf(stderr, "create_accept_message_for_player() start");
     
     idle_state_message_struct* accept_message_data = create_accept_message (
         get_player_name(player), 
         get_player_character(player), 
         NULL
     );
-    
+
+    fprintf(stderr, "create_accept_message_for_player() end");
+
     return idle_state_message_to_string(*accept_message_data);
 }
 
 // Generate a random port number in between 1025 and 3025
 static int generate_random_port () {
-    return START_PORT + random() % MAX_NODE_COUNT;
+    fprintf(stderr, "generate_random_port() start");
+    unsigned int port = START_PORT + random() % MAX_NODE_COUNT;
+    fprintf(stderr, "generate_random_port() end");
+    return port;
 }
 
 // Create a new player using the name and character of preference
 player_struct* create_player(char* name, game_character character) {
+    fprintf(stderr, "create_player() start");    
     player_struct* player = malloc (sizeof(player_struct));
 
     if (player != NULL) {
@@ -65,12 +74,15 @@ player_struct* create_player(char* name, game_character character) {
 
         while (perform_binding(socket_fd, LOCALHOST, port) != 0);
     }
-
+    
+    fprintf(stderr, "create_player() end");
     return player;
 }
 
 // Create a new opponent using the given details
 player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket_address, char* request_message) {
+    fprintf(stderr, "create_opponent() start");
+
     player_struct* opponent = malloc (sizeof(player_struct));
 
     if (opponent != NULL) {
@@ -96,17 +108,25 @@ player_struct* create_opponent(int socket_fd, struct sockaddr_in opponent_socket
         }
     }
 
+    fprintf(stderr, "create_opponent() end");
+
     return opponent;
 }
 
 // Kill the player
 void kill_player(player_struct** player) {
+    fprintf(stderr, "kill_player() start");
+
     free(*player);
     *player = NULL;
+
+    fprintf(stderr, "kill_player() end");
 }
 
 // Broadcasts a player's presence into the network in expectation of an opponent who will ACCEPT the request for a game.
 int broadcast_player(player_struct player) {
+    fprintf(stderr, "broadcast_player() start");
+
     // Message to send
     char* invite_message = create_invite_message_for_player(player);
     size_t message_length = strlen(invite_message);
@@ -128,11 +148,13 @@ int broadcast_player(player_struct player) {
 
     free(invite_message);
 
+    fprintf(stderr, "broadcast_player() end");
     return 0;
 }
 
 // Observe the network and prepare a list of the opponents.
 player_struct* look_for_opponents(player_struct player) {
+    fprintf(stderr, "look_for_opponents() start");
 
     // Wait for responses to arrive
     char opponent_request[IDLE_STATE_MESSAGE_MAX_LENGTH];
@@ -141,6 +163,8 @@ player_struct* look_for_opponents(player_struct player) {
 	socklen_t opponent_sockaddr_len;
     unsigned short int socket_fd = get_player_socket_file_descriptor(player);
 
+    set_receiver_timeout(socket_fd, 5);
+
     int recieve_status = recvfrom (socket_fd, opponent_request, request_max_size, 0, (struct sockaddr*) &opponent_socket_addr, &opponent_sockaddr_len);
 
     if (recieve_status == -1)
@@ -148,11 +172,13 @@ player_struct* look_for_opponents(player_struct player) {
 
     player_struct* opponent = create_opponent (socket_fd, opponent_socket_addr, opponent_request);
 
+    fprintf(stderr, "look_for_opponents() end");
     return opponent;
 }
 
 // Accept the request for a match.
 int accept_an_opponent(player_struct player, player_struct opponent) {
+    fprintf(stderr, "accept_an_opponent() start");
     
     // Prepare the ACCEPT message
     char* accept_message = create_accept_message_for_player(player);
@@ -169,10 +195,14 @@ int accept_an_opponent(player_struct player, player_struct opponent) {
     sendto (socket_fd, accept_message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
 
     free(accept_message);
+
+    fprintf(stderr, "accept_an_opponent() end");
 }
 
 // Send the grid to the opponent
 int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct opponent) {
+
+    fprintf(stderr, "send_grid_to_opponent() start");
 
     // Prepare the GRID message
     playing_state_message_struct* grid_message = create_grid_message(grid, NULL);
@@ -191,10 +221,13 @@ int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct
 
     //free(message);
     destroy_playing_state_message_with_grid(grid_message);
+
+    fprintf(stderr, "send_grid_to_opponent() end");
 }
 
 // Recieve the grid from the intended opponent
 int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, player_struct opponent) {
+    fprintf(stderr, "recieve_grid_from_opponent() start");
     
     // Wait for responses to arrive
     char opponent_response[PLAYING_STATE_MESSAGE_MAX_LENGTH];
@@ -206,6 +239,9 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
     unsigned short int socket_fd = get_player_socket_file_descriptor(player);
 
     int recieve_status = 0;
+    
+    // Set recieving timeout to 60 when waiting for a grid
+    set_receiver_timeout(socket_fd, 60);
     
     do {
         recieve_status = recvfrom (socket_fd, opponent_response, request_max_size, 0, (struct sockaddr*) &opponent_socket_addr, &opponent_sockaddr_len);
@@ -220,7 +256,8 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
     
     copy_grid(*(message->grid), current_grid);
     destroy_playing_state_message_with_grid(message);
-    
+
+    fprintf(stderr, "recieve_grid_from_opponent() end");    
     return 0;
 }
 
