@@ -31,6 +31,15 @@ int parse_address(char *ipv4_addr, int port_no, struct sockaddr_in *parsed_data)
 	}
 }
 
+void set_receiver_timeout(int socket_fd, unsigned int max_time) {
+	struct timeval max_wait_time = {max_time, 0};
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &max_wait_time, sizeof max_wait_time) == -1)
+	{
+		perror("setsockopt (SO_RCVTIMEO)");
+		exit(1);
+	}
+}
+
 int create_udp_socket()
 {
 	// Create a socket
@@ -41,13 +50,7 @@ int create_udp_socket()
 		exit(EXIT_FAILURE);
 	}
 
-	// this call is what allows broadcast packets to be sent:
-	struct timeval max_wait_time = {5, 0};
-	if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &max_wait_time, sizeof max_wait_time) == -1)
-	{
-		perror("setsockopt (SO_BROADCAST)");
-		exit(1);
-	}
+	set_receiver_timeout(socket_fd, 5);
 
 	return socket_fd;
 }
