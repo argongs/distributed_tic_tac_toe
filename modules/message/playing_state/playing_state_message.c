@@ -22,6 +22,9 @@ static playing_state_message_struct* create_blank_playing_state_message() {
     playing_state_message->grid = create_grid();
     playing_state_message->data = NULL;
 
+    if (playing_state_message == NULL || grid == NULL)
+        return NULL;
+
     return playing_state_message;
 }
 
@@ -70,6 +73,10 @@ playing_state_message_struct* create_draw_message (grid_struct* grid, void* data
 // Parse/Deserialise a string message into a playing state message
 playing_state_message_struct* parse_string_to_playing_state_message (char* message) {
     playing_state_message_struct* playing_state_message = create_blank_playing_state_message();
+    
+    if (playing_state_message == NULL)
+        return NULL;
+    
     int no_of_variables_scanned = sscanf(message, "%c,%[^,],%hd", (char*) &(playing_state_message->type), playing_state_message->grid->contents, (unsigned short int*) &(playing_state_message->grid->last_location));
     return playing_state_message;
 }
