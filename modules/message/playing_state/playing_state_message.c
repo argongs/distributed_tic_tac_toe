@@ -22,7 +22,7 @@ static playing_state_message_struct* create_blank_playing_state_message() {
     playing_state_message->grid = create_grid();
     playing_state_message->data = NULL;
 
-    if (playing_state_message == NULL || grid == NULL)
+    if (playing_state_message == NULL || playing_state_message->grid == NULL)
         return NULL;
 
     return playing_state_message;
@@ -99,7 +99,7 @@ char* playing_state_message_to_string (playing_state_message_struct message) {
     size_t playing_state_message_max_size = (PLAYING_STATE_MESSAGE_MAX_LENGTH) * sizeof(char);
     char* playing_state_message = malloc (playing_state_message_max_size);
 
-    int bytes_read = snprintf(playing_state_message, playing_state_message_max_size, "%c,%s,%d%*[^\n]", message.type, message.grid->contents, message.grid->last_location);
+    int bytes_read = snprintf(playing_state_message, playing_state_message_max_size, "%c,%s,%d", message.type, message.grid->contents, message.grid->last_location);
 
     return playing_state_message;
 }
