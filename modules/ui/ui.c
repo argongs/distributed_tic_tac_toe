@@ -43,17 +43,22 @@ static void get_input_for_ongoing_game(player_struct player, grid_struct* grid) 
         show_grid_indexing();
     }
 
-    int last_location = GRID_INFINITY;
+    unsigned short int last_location = GRID_INFINITY;
+    unsigned short int is_input_location_occupied = 1;
 
     while (true) {
-        scanf("%d", &last_location);
+        scanf("%hd", &last_location);
         if (last_location < HORIZONTAL_TOP_MIN || last_location > HORIZONTAL_BOTTOM_MAX)
             printf ("Incorrect location. Please provide an input in between %d and %d.\n", HORIZONTAL_TOP_MIN, HORIZONTAL_BOTTOM_MAX);
-        else
-            break;
+        else {
+            is_input_location_occupied = mark_on_grid(grid, player.character, last_location);
+            if (is_input_location_occupied)
+                printf ("Given location is already occupied\n");
+            else
+                break;
+        }
     }
-
-    mark_on_grid(grid, player.character, last_location);
+    
     fprintf(stderr, "get_input_for_ongoing_game() end\n");
 }
 
@@ -92,22 +97,27 @@ void show_grid(grid_struct grid) {
 grid_status_enum get_input_for_grid(player_struct player, grid_struct* grid) {
     fprintf(stderr, "get_input_for_grid() start\n");
 
+    grid_status_enum recent_grid_status = get_grid_recent_status(*grid);
     grid_status_enum updated_grid_status = BLANK;
-    switch (grid->recent_status) {
-        case BLANK:;
+    
+    switch (recent_grid_status) {
+        case BLANK: fprintf(stderr, "Grid is currently blank\n");
         case ONGOING:
+            fprintf(stderr, "Grid has a game ongoing on it\n");
             get_input_for_ongoing_game(player, grid);
-            updated_grid_status = ONGOING;
+            updated_grid_status = get_grid_recent_status(*grid);
             break;
         case GAME_WIN:
+            fprintf(stderr, "Game completed, opponent won\n");
             printf ("Your opponent has won this round!\n");
-            updated_grid_status = GAME_WIN;
+            updated_grid_status = recent_grid_status;
             break;
         case GAME_DRAW:
+            fprintf(stderr, "Game completed, it's a draw\n");
             printf ("It's a tie!\n");
-            updated_grid_status = GAME_DRAW;
+            updated_grid_status = recent_grid_status;
             break;
-        default:;
+        default: fprintf(stderr, "Grid is in unknown status\n");;
     }
 
     fprintf(stderr, "get_input_for_grid() end\n");
