@@ -50,7 +50,7 @@ int create_udp_socket()
 		exit(EXIT_FAILURE);
 	}
 
-	set_receiver_timeout(socket_fd, 5);
+	set_receiver_timeout(socket_fd, 30);
 
 	return socket_fd;
 }
