@@ -220,7 +220,7 @@ int send_grid_to_opponent(grid_struct* grid, player_struct player, player_struct
     sendto (socket_fd, message, message_length, 0, (struct sockaddr*) &dest_socket_addr, sizeof (dest_socket_addr));
 
     //free(message);
-    destroy_playing_state_message_with_grid(grid_message);
+    destroy_playing_state_message(grid_message);
 
     fprintf(stderr, "send_grid_to_opponent() end\n");
 }
@@ -234,7 +234,8 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
     size_t data_recvd = 0;
 	size_t request_max_size = sizeof (char) * PLAYING_STATE_MESSAGE_MAX_LENGTH;
     static struct sockaddr_in opponent_socket_addr;
-	
+	unsigned short int retries_remaining = 3; 
+
     socklen_t opponent_sockaddr_len;
     unsigned short int socket_fd = get_player_socket_file_descriptor(player);
 
@@ -247,7 +248,10 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
         recieve_status = recvfrom (socket_fd, opponent_response, request_max_size, 0, (struct sockaddr*) &opponent_socket_addr, &opponent_sockaddr_len);
 
         if (recieve_status == -1)
-            return -1;
+            if (retries_remaining == 0)
+                return -1;
+            else
+                retries_remaining--;
 
     } while (!is_it_playing_state_message(opponent_response));
     
@@ -255,7 +259,7 @@ int recieve_grid_from_opponent(grid_struct* current_grid, player_struct player, 
     
     
     copy_grid(*(message->grid), current_grid);
-    //destroy_playing_state_message_with_grid(message);
+    destroy_playing_state_message_with_grid(message);
 
     fprintf(stderr, "recieve_grid_from_opponent() end\n");    
     return 0;
