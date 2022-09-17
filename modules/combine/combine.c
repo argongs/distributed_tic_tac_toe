@@ -42,7 +42,7 @@ static int send_grid()
                 get_input_for_grid(*player, grid);
             }
             else
-                return 1;
+                return -1;
         }
         else
         {
