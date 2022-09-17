@@ -66,8 +66,8 @@ static void get_input_for_ongoing_game(player_struct player, grid_struct* grid) 
 static bool yes_or_no_input() {
     fprintf(stderr, "yes_or_no_input() start\n");
     
-    char input = ' ';
-    scanf("%c", &input);
+    char input;
+    scanf(" %c", &input);
     
     fprintf(stderr, "yes_or_no_input() end\n");
 
